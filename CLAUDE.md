@@ -1,0 +1,50 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+A full-stack ballistics calculator: C# .NET 8 API with PostgreSQL, React/TypeScript SPA frontend. Users select from 43 common bullet loads and view a trajectory plot with yards/meters toggle. Shot origin is picnic table height (30 inches). The trajectory highlights where bullet height matches its height at 50 yards.
+
+## Architecture
+
+```
+src/
+  BallisticsCalculator.Core/           # Models, DTOs, ballistics engine, interfaces
+  BallisticsCalculator.Infrastructure/ # EF Core DbContext, seed data (43 cartridges), repository
+  BallisticsCalculator.Api/            # ASP.NET Web API controllers, DI wiring
+  BallisticsCalculator.Client/         # React/TypeScript SPA (Vite + Recharts)
+
+tests/
+  BallisticsCalculator.Core.Tests/     # xUnit - ballistics engine, drag model, unit converter tests
+  BallisticsCalculator.Api.Tests/      # xUnit - controller integration tests (InMemory DB)
+
+deploy/
+  docker/                              # Dockerfiles, docker-compose (API + Client + PostgreSQL)
+  helm/ballistics-calculator/          # Helm chart with K8s templates
+```
+
+## Build & Test Commands
+
+- Build: `dotnet build BallisticsCalculator.sln`
+- Run all tests: `dotnet test BallisticsCalculator.sln`
+- Run Core tests: `dotnet test tests/BallisticsCalculator.Core.Tests/`
+- Run API tests: `dotnet test tests/BallisticsCalculator.Api.Tests/`
+- Run a single test: `dotnet test --filter "FullyQualifiedName~TestClassName.TestMethodName"`
+- Run with coverage: `dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings`
+- Run API: `dotnet run --project src/BallisticsCalculator.Api` (port 5062)
+- Run frontend: `cd src/BallisticsCalculator.Client && npm run dev` (port 5173, proxies /api to 5062)
+
+## Docker
+
+- `docker-compose -f deploy/docker/docker-compose.yml up --build`
+- API: localhost:5000, Client: localhost:3000, DB: localhost:5432
+
+## Key Technical Details
+
+- Ballistics engine uses RK4 integration with G1 drag model (76-entry Cd table)
+- BC unit conversion: lb/in² to slugs/ft² via factor 144/g (32.174)
+- Bore elevation angle found via binary search (50 iterations)
+- API auto-applies EF Core migrations on startup (dev mode)
+- API tests use InMemory database via WebApplicationFactory
+- Seed data: 43 cartridges across 4 categories (Handgun, Intermediate, Standard Rifle, Magnum)

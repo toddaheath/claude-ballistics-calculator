@@ -1,0 +1,17 @@
+Ballistics Calculator has been deployed!
+
+1. Get the application URL:
+{{- if .Values.ingress.enabled }}
+  http://{{ .Values.ingress.host }}
+{{- else }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ballistics-calculator.name" . }},app.kubernetes.io/component=client" -o jsonpath="{.items[0].metadata.name}")
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 3000:80
+  Open http://localhost:3000
+{{- end }}
+
+2. Check API health:
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "ballistics-calculator.fullname" . }}-api 5062:80
+  curl http://localhost:5062/health
+
+3. View available cartridges:
+  curl http://localhost:5062/api/cartridges

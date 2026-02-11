@@ -1,0 +1,16 @@
+namespace BallisticsCalculator.Core.Ballistics;
+
+public static class UnitConverter
+{
+    public static double YardsToMeters(double yards) => yards * BallisticConstants.MetersPerYard;
+    public static double MetersToYards(double meters) => meters / BallisticConstants.MetersPerYard;
+
+    public static double FpsToMps(double fps) => fps / BallisticConstants.FeetPerMeter;
+    public static double MpsToFps(double mps) => mps * BallisticConstants.FeetPerMeter;
+
+    public static double InchesToCm(double inches) => inches * BallisticConstants.CmPerInch;
+    public static double CmToInches(double cm) => cm / BallisticConstants.CmPerInch;
+
+    public static double FootPoundsToJoules(double ftLbs) => ftLbs * BallisticConstants.JoulesPerFootPound;
+    public static double JoulesToFootPounds(double joules) => joules / BallisticConstants.JoulesPerFootPound;
+}
