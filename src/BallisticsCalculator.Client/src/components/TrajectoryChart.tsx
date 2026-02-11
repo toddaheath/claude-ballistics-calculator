@@ -2,7 +2,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, Legend, ResponsiveContainer, Label
 } from 'recharts';
-import { TrajectoryResponse } from '../types';
+import type { TrajectoryResponse } from '../types';
 
 interface Props {
   data: TrajectoryResponse;
@@ -17,13 +17,7 @@ export default function TrajectoryChart({ data }: Props) {
   const step = isMetric ? 5 : 5;
   const chartData = data.points.filter((_, i) => i % step === 0 || i === data.points.length - 1);
 
-  // Find the second crossing point for annotation
   const crossingRange = data.secondCrossingRange;
-  const crossingPoint = crossingRange > 0
-    ? data.points.reduce((closest, p) =>
-        Math.abs(p.range - crossingRange) < Math.abs(closest.range - crossingRange) ? p : closest
-      , data.points[0])
-    : null;
 
   return (
     <div className="trajectory-chart">
@@ -38,13 +32,15 @@ export default function TrajectoryChart({ data }: Props) {
             <Label value={heightLabel} angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
           </YAxis>
           <Tooltip
-            formatter={(value: number, name: string) => {
+            formatter={(value, name) => {
+              if (value == null) return '';
+              const v = Number(value);
               const labels: Record<string, string> = {
-                height: `${value.toFixed(2)} ${isMetric ? 'cm' : 'in'}`,
-                velocity: `${value.toFixed(0)} ${isMetric ? 'm/s' : 'fps'}`,
-                energy: `${value.toFixed(0)} ${isMetric ? 'J' : 'ft-lbs'}`,
+                height: `${v.toFixed(2)} ${isMetric ? 'cm' : 'in'}`,
+                velocity: `${v.toFixed(0)} ${isMetric ? 'm/s' : 'fps'}`,
+                energy: `${v.toFixed(0)} ${isMetric ? 'J' : 'ft-lbs'}`,
               };
-              return labels[name] ?? value.toFixed(2);
+              return labels[name ?? ''] ?? v.toFixed(2);
             }}
             labelFormatter={(label) => `${rangeLabel.split(' ')[0]}: ${Number(label).toFixed(0)}`}
           />

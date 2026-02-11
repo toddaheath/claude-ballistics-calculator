@@ -1,0 +1,47 @@
+name: Production Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      tag:
+        description: 'Image tag (commit SHA or "latest")'
+        required: true
+        default: 'latest'
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Set kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install ballistics-calculator \
+            deploy/helm/ballistics-calculator/ \
+            -f deploy/helm/ballistics-calculator/values-production.yaml \
+            --set api.image.tag=${{ inputs.tag }} \
+            --set client.image.tag=${{ inputs.tag }} \
+            --namespace ballistics \
+            --create-namespace \
+            --wait \
+            --timeout 5m

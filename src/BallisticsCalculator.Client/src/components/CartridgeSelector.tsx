@@ -1,4 +1,4 @@
-import { Cartridge } from '../types';
+import type { Cartridge } from '../types';
 
 interface Props {
   cartridges: Cartridge[];

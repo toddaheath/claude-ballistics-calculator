@@ -4,8 +4,10 @@ import UnitToggle from './components/UnitToggle';
 import TrajectoryChart from './components/TrajectoryChart';
 import TrajectoryInfo from './components/TrajectoryInfo';
 import { getCartridges, calculateTrajectory } from './services/api';
-import { Cartridge, TrajectoryResponse } from './types';
+import type { Cartridge, TrajectoryResponse } from './types';
 import './App.css';
+
+const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
 function App() {
   const [cartridges, setCartridges] = useState<Cartridge[]>([]);
@@ -51,6 +53,11 @@ function App() {
 
   return (
     <div className="app">
+      {isDemoMode && (
+        <div className="demo-banner">
+          Demo Mode — showing sample data. Deploy the full stack for live calculations.
+        </div>
+      )}
       <header>
         <h1>Ballistics Calculator</h1>
         <p>Select a cartridge to view its trajectory. Shot from 30" (picnic table height), zeroed at 100 yards.</p>

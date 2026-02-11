@@ -1,4 +1,4 @@
-import { TrajectoryResponse } from '../types';
+import type { TrajectoryResponse } from '../types';
 
 interface Props {
   data: TrajectoryResponse;
