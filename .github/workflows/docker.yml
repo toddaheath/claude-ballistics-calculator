@@ -1,4 +1,4 @@
-name: Docker Build & Push
+name: Build & Deploy API
 
 on:
   workflow_run:
@@ -6,29 +6,32 @@ on:
     types: [completed]
     branches: [main]
 
-env:
-  REGISTRY: ghcr.io
-  API_IMAGE: ghcr.io/toddaheath/ballistics-calculator-api
-  CLIENT_IMAGE: ghcr.io/toddaheath/ballistics-calculator-client
-
 jobs:
-  build-and-push:
-    name: Build & Push Images
+  build-push:
+    name: Build & Push Images to ACR
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: dev
     permissions:
+      id-token: write
       contents: read
-      packages: write
+    outputs:
+      image-tag: ${{ github.event.workflow_run.head_sha }}
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to ACR
+        run: az acr login --name ${{ vars.ACR_NAME }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -40,8 +43,8 @@ jobs:
           file: deploy/docker/Dockerfile.api
           push: true
           tags: |
-            ${{ env.API_IMAGE }}:${{ github.sha }}
-            ${{ env.API_IMAGE }}:latest
+            ${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-api:${{ github.event.workflow_run.head_sha }}
+            ${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -52,7 +55,52 @@ jobs:
           file: deploy/docker/Dockerfile.client
           push: true
           tags: |
-            ${{ env.CLIENT_IMAGE }}:${{ github.sha }}
-            ${{ env.CLIENT_IMAGE }}:latest
+            ${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-client:${{ github.event.workflow_run.head_sha }}
+            ${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-client:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy-dev:
+    name: Deploy API to dev AKS
+    needs: build-push
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --name ${{ vars.AKS_CLUSTER_NAME }} \
+            --overwrite-existing
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Deploy API with Helm
+        run: |
+          helm upgrade --install ballistics-calculator \
+            deploy/helm/ballistics-calculator/ \
+            -f deploy/helm/ballistics-calculator/values-dev.yaml \
+            --set api.image.repository=${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-api \
+            --set api.image.tag=${{ github.event.workflow_run.head_sha }} \
+            --set client.image.repository=${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-client \
+            --set client.image.tag=${{ github.event.workflow_run.head_sha }} \
+            --namespace ballistics \
+            --create-namespace \
+            --wait \
+            --timeout 5m
