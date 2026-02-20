@@ -13,8 +13,8 @@ export default function TrajectoryChart({ data }: Props) {
   const rangeLabel = isMetric ? 'Range (m)' : 'Range (yards)';
   const heightLabel = isMetric ? 'Height (cm)' : 'Height (inches)';
 
-  // Downsample to every 5 units for chart performance
-  const step = isMetric ? 5 : 5;
+  // Downsample to every 5 points for chart performance
+  const step = 5;
   const chartData = data.points.filter((_, i) => i % step === 0 || i === data.points.length - 1);
 
   const crossingRange = data.secondCrossingRange;
