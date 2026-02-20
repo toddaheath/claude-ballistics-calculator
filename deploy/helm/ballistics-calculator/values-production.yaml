@@ -4,6 +4,7 @@ api:
     repository: ghcr.io/toddaheath/ballistics-calculator-api
     tag: latest
     pullPolicy: Always
+  corsAllowedOrigins: "https://ballistics-calc.heathrobotics.io"
   service:
     type: ClusterIP
     port: 80

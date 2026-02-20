@@ -4,6 +4,7 @@ api:
     repository: ballistics-calculator-api  # overridden by --set at deploy time
     tag: latest
     pullPolicy: Always
+  corsAllowedOrigins: "https://ballistics-calc.dev.heathrobotics.io,http://localhost:5173"
   service:
     type: ClusterIP
     port: 80
