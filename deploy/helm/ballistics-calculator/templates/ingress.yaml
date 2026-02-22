@@ -6,9 +6,13 @@ metadata:
   labels:
     {{- include "ballistics-calculator.labels" . | nindent 4 }}
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: {{ .Values.ingress.className }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+      secretName: {{ include "ballistics-calculator.fullname" . }}-tls
   rules:
     - host: {{ .Values.ingress.host }}
       http:

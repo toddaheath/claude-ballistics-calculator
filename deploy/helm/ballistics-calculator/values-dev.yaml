@@ -51,4 +51,4 @@ postgresql:
 ingress:
   enabled: true
   className: nginx
-  host: ballistics-dev.example.com
+  host: ballistics-calc-api.dev.heathrobotics.io
