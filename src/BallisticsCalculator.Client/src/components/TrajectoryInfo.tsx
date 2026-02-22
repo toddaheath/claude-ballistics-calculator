@@ -33,7 +33,11 @@ export default function TrajectoryInfo({ data }: Props) {
           </tr>
           <tr>
             <td>Shot Height</td>
-            <td>{data.shotHeightInches.toFixed(1)} {heightUnit}</td>
+            <td>
+              {isMetric
+                ? `${(data.shotHeightInches * 2.54).toFixed(1)} cm`
+                : `${data.shotHeightInches.toFixed(1)} in`}
+            </td>
           </tr>
           <tr>
             <td>Height at 50 {rangeUnit}</td>

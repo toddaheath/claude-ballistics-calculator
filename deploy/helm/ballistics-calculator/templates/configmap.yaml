@@ -7,3 +7,6 @@ metadata:
 data:
   ASPNETCORE_ENVIRONMENT: "Production"
   ASPNETCORE_URLS: "http://+:{{ .Values.api.service.targetPort }}"
+  {{- if .Values.api.corsAllowedOrigins }}
+  CorsAllowedOrigins: {{ .Values.api.corsAllowedOrigins | quote }}
+  {{- end }}

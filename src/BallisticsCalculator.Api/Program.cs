@@ -23,12 +23,16 @@ builder.Services.AddDbContext<BallisticsDbContext>(options =>
 builder.Services.AddScoped<ICartridgeRepository, CartridgeRepository>();
 builder.Services.AddSingleton<TrajectoryCalculator>();
 
-// CORS for React dev server
+// CORS — origins configurable via CORS_ALLOWED_ORIGINS (comma-separated)
+var corsOrigins = builder.Configuration["CorsAllowedOrigins"]
+    ?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    ?? ["http://localhost:5173", "http://localhost:3000"];
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+        policy.WithOrigins(corsOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });

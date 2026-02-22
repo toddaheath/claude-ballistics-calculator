@@ -4,6 +4,7 @@ api:
     repository: ballistics-calculator-api  # overridden by --set at deploy time
     tag: latest
     pullPolicy: Always
+  corsAllowedOrigins: "https://ballistics-calc.dev.heathrobotics.io,http://localhost:5173"
   service:
     type: ClusterIP
     port: 80
@@ -50,4 +51,4 @@ postgresql:
 ingress:
   enabled: true
   className: nginx
-  host: ballistics-dev.example.com
+  host: ballistics-calc-api.dev.heathrobotics.io

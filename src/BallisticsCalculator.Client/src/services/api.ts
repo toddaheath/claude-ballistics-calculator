@@ -5,7 +5,7 @@ import { mockCartridges, mockTrajectoryData } from './mockData';
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
 const client = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL ?? '/api',
 });
 
 export async function getCartridges(): Promise<Cartridge[]> {
