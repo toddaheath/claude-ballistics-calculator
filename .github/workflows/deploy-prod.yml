@@ -1,0 +1,100 @@
+name: Deploy to Prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag (commit SHA or "latest")'
+        required: true
+        default: 'latest'
+      deploy_spa:
+        description: 'Also deploy SPA to prod Azure Storage'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy-api:
+    name: Deploy API to prod AKS
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --name ${{ vars.AKS_CLUSTER_NAME }} \
+            --overwrite-existing
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Deploy API with Helm
+        run: |
+          helm upgrade --install ballistics-calculator \
+            deploy/helm/ballistics-calculator/ \
+            -f deploy/helm/ballistics-calculator/values-prod.yaml \
+            --set api.image.repository=${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-api \
+            --set api.image.tag=${{ inputs.tag }} \
+            --namespace ballistics \
+            --create-namespace \
+            --wait \
+            --timeout 5m
+
+  deploy-spa:
+    name: Deploy SPA to prod Storage
+    runs-on: ubuntu-latest
+    if: ${{ inputs.deploy_spa == true }}
+    environment: prod
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: src/BallisticsCalculator.Client/package-lock.json
+
+      - name: Install dependencies
+        working-directory: src/BallisticsCalculator.Client
+        run: npm ci
+
+      - name: Build SPA
+        working-directory: src/BallisticsCalculator.Client
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+        run: npm run build
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload SPA to Azure Blob Storage
+        run: |
+          az storage blob upload-batch \
+            --account-name stballisticscalcspaprod \
+            --source src/BallisticsCalculator.Client/dist \
+            --destination '$web' \
+            --overwrite \
+            --auth-mode login

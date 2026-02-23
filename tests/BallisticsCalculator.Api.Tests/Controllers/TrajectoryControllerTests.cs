@@ -19,7 +19,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "yards" };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -34,7 +34,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 999, UnitSystem = "yards" };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -44,7 +44,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "meters" };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
 
         result.Should().NotBeNull();
@@ -58,7 +58,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "yards" };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
 
         result.Should().NotBeNull();
@@ -71,7 +71,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 29 };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
 
         result!.BoreElevationAngleMOA.Should().BeGreaterThan(0);
@@ -82,7 +82,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 29 };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
 
         // SecondCrossingRange can be 0 if not found, but the field should exist
@@ -94,7 +94,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 2, MaxRange = 200, UnitSystem = "yards" };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -113,7 +113,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
             UnitSystem = "yards"
         };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
 
         result!.ShotHeightInches.Should().Be(48);
@@ -124,7 +124,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "yards" };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
 
         result!.ShotHeightInches.Should().Be(30);
@@ -135,7 +135,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     {
         var request = new TrajectoryRequestDto { CartridgeId = 42, UnitSystem = "yards" };
 
-        var response = await _client.PostAsJsonAsync("/api/trajectory", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
