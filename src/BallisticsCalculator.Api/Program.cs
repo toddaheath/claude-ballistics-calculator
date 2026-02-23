@@ -3,8 +3,17 @@ using BallisticsCalculator.Core.Interfaces;
 using BallisticsCalculator.Infrastructure.Data;
 using BallisticsCalculator.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Serilog — compact JSON to stdout, configuration overridable via appsettings
+builder.Host.UseSerilog((context, config) =>
+    config
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext()
+        .WriteTo.Console(new CompactJsonFormatter()));
 
 // Add services
 builder.Services.AddControllers();
