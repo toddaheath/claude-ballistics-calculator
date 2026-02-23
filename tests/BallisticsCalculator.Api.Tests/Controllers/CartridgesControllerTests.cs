@@ -17,7 +17,7 @@ public class CartridgesControllerTests : IClassFixture<CustomWebApplicationFacto
     [Fact]
     public async Task GetAll_ReturnsOkWithCartridges()
     {
-        var response = await _client.GetAsync("/api/cartridges");
+        var response = await _client.GetAsync("/api/v1/cartridges");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -29,7 +29,7 @@ public class CartridgesControllerTests : IClassFixture<CustomWebApplicationFacto
     [Fact]
     public async Task GetAll_ContainsExpectedCategories()
     {
-        var cartridges = await _client.GetFromJsonAsync<List<CartridgeDto>>("/api/cartridges");
+        var cartridges = await _client.GetFromJsonAsync<List<CartridgeDto>>("/api/v1/cartridges");
 
         var categories = cartridges!.Select(c => c.Category).Distinct().ToList();
         categories.Should().Contain("Handgun");
@@ -41,7 +41,7 @@ public class CartridgesControllerTests : IClassFixture<CustomWebApplicationFacto
     [Fact]
     public async Task GetById_ExistingId_ReturnsCartridge()
     {
-        var response = await _client.GetAsync("/api/cartridges/1");
+        var response = await _client.GetAsync("/api/v1/cartridges/1");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -54,7 +54,7 @@ public class CartridgesControllerTests : IClassFixture<CustomWebApplicationFacto
     [Fact]
     public async Task GetById_NonExistentId_Returns404()
     {
-        var response = await _client.GetAsync("/api/cartridges/999");
+        var response = await _client.GetAsync("/api/v1/cartridges/999");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -62,7 +62,7 @@ public class CartridgesControllerTests : IClassFixture<CustomWebApplicationFacto
     [Fact]
     public async Task GetById_308Win_ReturnsCorrectData()
     {
-        var cartridge = await _client.GetFromJsonAsync<CartridgeDto>("/api/cartridges/29");
+        var cartridge = await _client.GetFromJsonAsync<CartridgeDto>("/api/v1/cartridges/29");
 
         cartridge.Should().NotBeNull();
         cartridge!.Name.Should().Contain(".308 Win");

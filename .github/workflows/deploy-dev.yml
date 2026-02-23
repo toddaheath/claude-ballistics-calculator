@@ -1,30 +1,23 @@
-name: Manual Deploy
+name: Deploy to Dev
 
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Target environment'
-        required: true
-        type: choice
-        options:
-          - dev
-          - prod
       tag:
         description: 'Image tag (commit SHA or "latest")'
         required: true
         default: 'latest'
       deploy_spa:
-        description: 'Also deploy SPA to Azure Storage'
+        description: 'Also deploy SPA to dev Azure Storage'
         required: false
         type: boolean
         default: false
 
 jobs:
   deploy-api:
-    name: Deploy API to ${{ inputs.environment }}
+    name: Deploy API to dev AKS
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: dev
     permissions:
       id-token: write
       contents: read
@@ -53,7 +46,7 @@ jobs:
         run: |
           helm upgrade --install ballistics-calculator \
             deploy/helm/ballistics-calculator/ \
-            -f deploy/helm/ballistics-calculator/values-${{ inputs.environment }}.yaml \
+            -f deploy/helm/ballistics-calculator/values-dev.yaml \
             --set api.image.repository=${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-api \
             --set api.image.tag=${{ inputs.tag }} \
             --namespace ballistics \
@@ -62,10 +55,10 @@ jobs:
             --timeout 5m
 
   deploy-spa:
-    name: Deploy SPA to ${{ inputs.environment }} Storage
+    name: Deploy SPA to dev Storage
     runs-on: ubuntu-latest
     if: ${{ inputs.deploy_spa == true }}
-    environment: ${{ inputs.environment }}
+    environment: dev
     permissions:
       id-token: write
       contents: read
@@ -98,11 +91,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Upload SPA to Azure Blob Storage
-        env:
-          STORAGE_ACCOUNT: ${{ inputs.environment == 'dev' && 'stballisticscalcspadev' || 'stballisticscalcspaprod' }}
         run: |
           az storage blob upload-batch \
-            --account-name $STORAGE_ACCOUNT \
+            --account-name stballisticscalcspadev \
             --source src/BallisticsCalculator.Client/dist \
             --destination '$web' \
             --overwrite \
