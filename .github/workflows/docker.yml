@@ -81,12 +81,13 @@ jobs:
 
       - name: Deploy API with Helm
         run: |
-          helm upgrade --install ballistics-calculator \
+          helm upgrade --install ballistics-calc-api \
             deploy/helm/ballistics-calculator/ \
             -f deploy/helm/ballistics-calculator/values-dev.yaml \
             --set api.image.repository=${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-api \
             --set api.image.tag=${{ github.event.workflow_run.head_sha }} \
-            --namespace ballistics \
+            --set fullnameOverride=ballistics-calc \
+            --namespace ballistics-calc-api-dev \
             --create-namespace \
             --wait \
             --timeout 5m
