@@ -5,7 +5,7 @@
   padding: 8px 16px;
   font-size: 0.85rem;
   border-radius: 4px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   border: 1px solid #ffc107;
 }
 
@@ -17,21 +17,77 @@
   color: #1a1a1a;
 }
 
+/* ── Site Header & Nav ── */
+
 header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.site-title h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.site-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-link {
+  padding: 7px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-link:hover {
+  background: #f0f4f8;
+  color: #1a1a1a;
+}
+
+.nav-active {
+  background: #2980b9;
+  color: #fff !important;
+}
+
+.nav-active:hover {
+  background: #2471a3;
+}
+
+/* ── Page header (inside main) ── */
+
+main {
+  min-height: 400px;
+}
+
+.page-header {
   text-align: center;
   margin-bottom: 24px;
 }
 
-header h1 {
-  margin: 0 0 8px;
-  font-size: 1.8rem;
+.page-header h2 {
+  margin: 0 0 6px;
+  font-size: 1.4rem;
 }
 
-header p {
+.page-header p {
   margin: 0;
   color: #555;
   font-size: 0.95rem;
 }
+
+/* ── Controls ── */
 
 .controls {
   display: flex;
@@ -148,4 +204,22 @@ header p {
   font-weight: 600;
   width: 200px;
   color: #555;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 640px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-nav {
+    flex-wrap: wrap;
+  }
+
+  .nav-link {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
 }
