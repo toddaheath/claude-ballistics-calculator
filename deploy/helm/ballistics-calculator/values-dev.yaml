@@ -17,24 +17,6 @@ api:
       cpu: 100m
       memory: 128Mi
 
-client:
-  replicaCount: 1
-  image:
-    repository: ballistics-calculator-client  # overridden by --set at deploy time
-    tag: latest
-    pullPolicy: Always
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 80
-  resources:
-    limits:
-      cpu: 200m
-      memory: 128Mi
-    requests:
-      cpu: 50m
-      memory: 64Mi
-
 postgresql:
   image:
     repository: postgres
