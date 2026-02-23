@@ -9,8 +9,7 @@ on:
         type: choice
         options:
           - dev
-          - staging
-          - production
+          - prod
       tag:
         description: 'Image tag (commit SHA or "latest")'
         required: true
@@ -101,9 +100,11 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Upload SPA to Azure Blob Storage
+        env:
+          STORAGE_ACCOUNT: ${{ inputs.environment == 'dev' && 'stballisticscalcspadev' || 'stballisticscalcspaprod' }}
         run: |
           az storage blob upload-batch \
-            --account-name ${{ vars.STORAGE_ACCOUNT_NAME }} \
+            --account-name $STORAGE_ACCOUNT \
             --source src/BallisticsCalculator.Client/dist \
             --destination '$web' \
             --overwrite \
