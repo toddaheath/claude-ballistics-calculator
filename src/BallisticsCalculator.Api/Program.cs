@@ -63,6 +63,15 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
+// Handle --migrate-only mode (used by the K8s migration Job)
+if (args.Contains("--migrate-only"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BallisticsDbContext>();
+    db.Database.Migrate();
+    return;
+}
+
 // Auto-apply migrations in development
 if (app.Environment.IsDevelopment())
 {
