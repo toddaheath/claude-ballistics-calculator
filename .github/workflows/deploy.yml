@@ -56,8 +56,6 @@ jobs:
             -f deploy/helm/ballistics-calculator/values-${{ inputs.environment }}.yaml \
             --set api.image.repository=${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-api \
             --set api.image.tag=${{ inputs.tag }} \
-            --set client.image.repository=${{ vars.ACR_LOGIN_SERVER }}/ballistics-calculator-client \
-            --set client.image.tag=${{ inputs.tag }} \
             --namespace ballistics \
             --create-namespace \
             --wait \

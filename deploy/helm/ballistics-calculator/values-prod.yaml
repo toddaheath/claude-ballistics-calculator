@@ -17,24 +17,6 @@ api:
       cpu: 250m
       memory: 256Mi
 
-client:
-  replicaCount: 2
-  image:
-    repository: ghcr.io/toddaheath/ballistics-calculator-client
-    tag: latest
-    pullPolicy: Always
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 80
-  resources:
-    limits:
-      cpu: 200m
-      memory: 128Mi
-    requests:
-      cpu: 50m
-      memory: 64Mi
-
 postgresql:
   image:
     repository: postgres
