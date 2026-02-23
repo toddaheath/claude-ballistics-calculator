@@ -1,0 +1,397 @@
+/* ── How It Works Page ── */
+
+.hiw-page {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.hiw-hero {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.hiw-hero h2 {
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+}
+
+.hiw-hero p {
+  color: #555;
+  font-size: 0.95rem;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Table of Contents ── */
+
+.hiw-toc {
+  background: #f0f4f8;
+  border: 1px solid #dde3ea;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  display: inline-block;
+  min-width: 240px;
+}
+
+.hiw-toc strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.hiw-toc ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.hiw-toc li {
+  margin-bottom: 4px;
+}
+
+.hiw-toc a {
+  color: #2980b9;
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+.hiw-toc a:hover {
+  text-decoration: underline;
+}
+
+/* ── Sections ── */
+
+.hiw-section {
+  margin-bottom: 48px;
+  scroll-margin-top: 80px;
+}
+
+.hiw-section h3 {
+  font-size: 1.2rem;
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e0e0e0;
+  color: #1a1a1a;
+}
+
+.hiw-section h4 {
+  font-size: 0.98rem;
+  margin: 20px 0 8px;
+  color: #333;
+}
+
+.hiw-section p {
+  line-height: 1.7;
+  color: #333;
+  margin: 0 0 12px;
+}
+
+.hiw-section ul,
+.hiw-section ol {
+  padding-left: 20px;
+  margin: 0 0 12px;
+}
+
+.hiw-section li {
+  line-height: 1.65;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* ── Diagram / ASCII art ── */
+
+.hiw-diagram {
+  background: #1a1a2e;
+  color: #a8d8ea;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.hiw-diagram pre {
+  margin: 0;
+  font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+.hiw-drag-curve pre {
+  color: #ffd166;
+}
+
+/* ── Callouts ── */
+
+.hiw-callout {
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.hiw-callout strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.hiw-callout-info {
+  background: #e8f4fb;
+  border-left: 4px solid #2980b9;
+  color: #1a3a4a;
+}
+
+.hiw-callout-tip {
+  background: #eafaf1;
+  border-left: 4px solid #27ae60;
+  color: #1a3a2a;
+}
+
+/* ── Steps ── */
+
+.hiw-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.hiw-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2980b9;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.hiw-step span:last-child {
+  line-height: 1.65;
+  padding-top: 4px;
+  color: #333;
+  font-size: 0.92rem;
+}
+
+/* ── Equation blocks ── */
+
+.hiw-equation-block {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+}
+
+.hiw-equation-block code {
+  display: block;
+  font-family: ui-monospace, monospace;
+  font-size: 1rem;
+  color: #c0392b;
+  margin: 6px 0;
+  letter-spacing: 0.02em;
+}
+
+.eq-label {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.85rem;
+  margin: 0 0 4px !important;
+}
+
+.eq-vars {
+  margin: 8px 0 0 0 !important;
+  padding-left: 20px;
+}
+
+.eq-vars li {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 3px !important;
+}
+
+/* ── BC examples ── */
+
+.hiw-bc-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.bc-example {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bc-label {
+  min-width: 220px;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.bc-bar-demo {
+  height: 12px;
+  background: linear-gradient(90deg, #2980b9, #27ae60);
+  border-radius: 6px;
+  transition: width 0.3s;
+}
+
+.bc-num {
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+  color: #2980b9;
+  white-space: nowrap;
+}
+
+/* ── Chart Legend ── */
+
+.hiw-chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #333;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legend-blue    { background: #2980b9; }
+.legend-gray    { background: #888; }
+.legend-orange  { background: #e67e22; }
+.legend-green   { background: #27ae60; }
+
+.legend-dashed {
+  background: repeating-linear-gradient(
+    90deg,
+    currentColor 0,
+    currentColor 6px,
+    transparent 6px,
+    transparent 10px
+  );
+}
+
+/* ── Info table ── */
+
+.hiw-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 12px 0;
+}
+
+.hiw-info-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+  line-height: 1.55;
+}
+
+.hiw-info-table td:first-child {
+  width: 160px;
+  color: #555;
+}
+
+.hiw-info-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Glossary ── */
+
+.hiw-glossary {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.gloss-entry {
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.gloss-entry:last-child {
+  border-bottom: none;
+}
+
+.gloss-entry dt {
+  font-weight: 700;
+  color: #2980b9;
+  font-size: 0.92rem;
+  margin-bottom: 4px;
+}
+
+.gloss-entry dd {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: #444;
+}
+
+.gloss-entry dd code {
+  font-family: ui-monospace, monospace;
+  background: #f0f0f0;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  color: #c0392b;
+}
+
+/* ── Footer note ── */
+
+.hiw-footer-note {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-top: 24px;
+}
+
+.hiw-footer-note p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .bc-label {
+    min-width: 140px;
+    font-size: 0.78rem;
+  }
+
+  .hiw-diagram pre {
+    font-size: 0.72rem;
+  }
+
+  .hiw-info-table td:first-child {
+    width: 120px;
+  }
+}
