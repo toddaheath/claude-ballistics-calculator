@@ -79,6 +79,16 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
+      - name: Clear stuck terminating pods
+        run: |
+          kubectl get pods -n ballistics-calc-api-dev \
+            -o json 2>/dev/null \
+            | jq -r '.items[] | select(.metadata.deletionTimestamp != null) | .metadata.name' \
+            | xargs -r -I{} kubectl delete pod {} \
+                --force --grace-period=0 \
+                -n ballistics-calc-api-dev \
+            || true
+
       - name: Deploy API with Helm
         run: |
           helm upgrade --install ballistics-calc-api \
@@ -90,4 +100,5 @@ jobs:
             --namespace ballistics-calc-api-dev \
             --create-namespace \
             --wait \
-            --timeout 5m
+            --timeout 5m \
+            --cleanup-on-fail
