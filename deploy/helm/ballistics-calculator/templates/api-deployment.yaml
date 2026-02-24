@@ -7,6 +7,8 @@ metadata:
     app.kubernetes.io/component: api
 spec:
   replicas: {{ .Values.api.replicaCount }}
+  strategy:
+    type: {{ .Values.api.deploymentStrategy | default "RollingUpdate" }}
   selector:
     matchLabels:
       {{- include "ballistics-calculator.selectorLabels" . | nindent 6 }}
@@ -17,6 +19,7 @@ spec:
         {{- include "ballistics-calculator.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: api
     spec:
+      terminationGracePeriodSeconds: {{ .Values.api.terminationGracePeriodSeconds | default 30 }}
       containers:
         - name: api
           image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"

@@ -1,5 +1,7 @@
 api:
   replicaCount: 1
+  deploymentStrategy: Recreate
+  terminationGracePeriodSeconds: 15
   image:
     repository: ballistics-calculator-api  # overridden by --set at deploy time
     tag: latest
