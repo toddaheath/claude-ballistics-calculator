@@ -34,3 +34,4 @@ ingress:
   enabled: true
   className: nginx
   host: ballistics-calc-api.dev.heathrobotics.io
+  certSecret: ballistics-calc-api-dev-tls
