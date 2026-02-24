@@ -174,9 +174,54 @@ main {
   border-radius: 8px;
 }
 
-.trajectory-chart h3 {
-  margin: 0 0 12px;
-  text-align: center;
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.chart-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.range-presets {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.range-presets-label {
+  font-size: 0.82rem;
+  color: #666;
+  margin-right: 2px;
+  white-space: nowrap;
+}
+
+.range-btn {
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  color: #444;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.range-btn:hover {
+  border-color: #2980b9;
+  color: #2980b9;
+}
+
+.range-btn.active {
+  background: #2980b9;
+  color: white;
+  border-color: #2980b9;
 }
 
 .trajectory-info {

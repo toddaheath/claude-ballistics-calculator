@@ -12,10 +12,13 @@ import './App.css';
 
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
+const DEFAULT_MAX_RANGE = 300;
+
 function Calculator() {
   const [cartridges, setCartridges] = useState<Cartridge[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [unitSystem, setUnitSystem] = useState('yards');
+  const [maxRange, setMaxRange] = useState(DEFAULT_MAX_RANGE);
   const [trajectory, setTrajectory] = useState<TrajectoryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,13 +29,14 @@ function Calculator() {
       .catch(() => setError('Failed to load cartridges'));
   }, []);
 
-  const fetchTrajectory = useCallback(async (cartridgeId: number, unit: string) => {
+  const fetchTrajectory = useCallback(async (cartridgeId: number, unit: string, range: number) => {
     setLoading(true);
     setError(null);
     try {
       const result = await calculateTrajectory({
         cartridgeId,
         unitSystem: unit,
+        maxRange: range,
       });
       setTrajectory(result);
     } catch {
@@ -44,13 +48,20 @@ function Calculator() {
 
   const handleCartridgeSelect = (id: number) => {
     setSelectedId(id);
-    fetchTrajectory(id, unitSystem);
+    fetchTrajectory(id, unitSystem, maxRange);
   };
 
   const handleUnitChange = (unit: string) => {
     setUnitSystem(unit);
     if (selectedId) {
-      fetchTrajectory(selectedId, unit);
+      fetchTrajectory(selectedId, unit, maxRange);
+    }
+  };
+
+  const handleMaxRangeChange = (range: number) => {
+    setMaxRange(range);
+    if (selectedId) {
+      fetchTrajectory(selectedId, unitSystem, range);
     }
   };
 
@@ -75,7 +86,11 @@ function Calculator() {
 
       {trajectory && !loading && (
         <>
-          <TrajectoryChart data={trajectory} />
+          <TrajectoryChart
+            data={trajectory}
+            maxRange={maxRange}
+            onMaxRangeChange={handleMaxRangeChange}
+          />
           <TrajectoryInfo data={trajectory} />
         </>
       )}
