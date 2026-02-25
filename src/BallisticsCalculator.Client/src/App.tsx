@@ -16,7 +16,7 @@ import './App.css';
 
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
-const DEFAULT_MAX_RANGE = 300;
+const DEFAULT_MAX_RANGE = 150;
 
 function Calculator() {
   const [cartridges, setCartridges] = useState<Cartridge[]>([]);
