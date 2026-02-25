@@ -64,7 +64,7 @@ jobs:
             --namespace ballistics-calc-api-dev \
             --create-namespace \
             --wait \
-            --timeout 5m \
+            --timeout 8m \
             --cleanup-on-fail
 
   deploy-spa:
