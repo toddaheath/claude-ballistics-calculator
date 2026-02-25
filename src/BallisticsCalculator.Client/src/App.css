@@ -251,6 +251,129 @@ main {
   color: #555;
 }
 
+/* ── Auth Pages ── */
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.auth-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-card h2 {
+  margin: 0 0 24px;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.auth-field label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.auth-field input {
+  padding: 9px 12px;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.15s;
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: #2980b9;
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #2980b9;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.auth-submit:hover:not(:disabled) {
+  background: #2471a3;
+}
+
+.auth-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.auth-switch {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.auth-switch a {
+  color: #2980b9;
+  text-decoration: none;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+/* ── Nav Auth ── */
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.nav-user-email {
+  font-size: 0.85rem;
+  color: #555;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-logout-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  color: #555;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-logout-btn:hover {
+  background: #fdecea;
+  color: #c0392b;
+  border-color: #e0b0b0;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 640px) {

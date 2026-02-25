@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import { HashRouter, Routes, Route, NavLink } from 'react-router-dom';
+import { HashRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import CartridgeSelector from './components/CartridgeSelector';
 import UnitToggle from './components/UnitToggle';
 import TrajectoryChart from './components/TrajectoryChart';
 import TrajectoryInfo from './components/TrajectoryInfo';
+import ProtectedRoute from './components/ProtectedRoute';
 import CartridgeReference from './pages/CartridgeReference';
 import HowItWorks from './pages/HowItWorks';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getCartridges, calculateTrajectory } from './services/api';
 import type { Cartridge, TrajectoryResponse } from './types';
 import './App.css';
@@ -98,7 +102,29 @@ function Calculator() {
   );
 }
 
-function App() {
+function NavAuth() {
+  const { isAuthenticated, user, logout } = useAuth();
+  if (isAuthenticated && user) {
+    return (
+      <div className="nav-user">
+        <span className="nav-user-email">{user.email}</span>
+        <button className="nav-logout-btn" onClick={logout}>Logout</button>
+      </div>
+    );
+  }
+  return (
+    <>
+      <NavLink to="/login" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
+        Sign In
+      </NavLink>
+      <NavLink to="/register" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
+        Register
+      </NavLink>
+    </>
+  );
+}
+
+function AppLayout() {
   return (
     <HashRouter>
       <div className="app">
@@ -121,18 +147,30 @@ function App() {
             <NavLink to="/how-it-works" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
               How It Works
             </NavLink>
+            <NavAuth />
           </nav>
         </header>
 
         <main>
           <Routes>
-            <Route path="/" element={<Calculator />} />
+            <Route path="/" element={<ProtectedRoute><Calculator /></ProtectedRoute>} />
             <Route path="/cartridges" element={<CartridgeReference />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </div>
     </HashRouter>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppLayout />
+    </AuthProvider>
   );
 }
 

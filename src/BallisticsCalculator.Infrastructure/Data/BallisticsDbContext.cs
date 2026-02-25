@@ -11,6 +11,7 @@ public class BallisticsDbContext : DbContext
     }
 
     public DbSet<Cartridge> Cartridges => Set<Cartridge>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

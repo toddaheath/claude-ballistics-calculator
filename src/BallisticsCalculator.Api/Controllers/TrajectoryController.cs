@@ -2,11 +2,13 @@ using Asp.Versioning;
 using BallisticsCalculator.Core.Ballistics;
 using BallisticsCalculator.Core.DTOs;
 using BallisticsCalculator.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BallisticsCalculator.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 public class TrajectoryController : ControllerBase

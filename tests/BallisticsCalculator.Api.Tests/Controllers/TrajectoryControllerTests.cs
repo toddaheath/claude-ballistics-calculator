@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BallisticsCalculator.Core.DTOs;
 using FluentAssertions;
@@ -12,6 +13,16 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
     public TrajectoryControllerTests(CustomWebApplicationFactory factory)
     {
         _client = factory.CreateClient();
+        AuthorizeClientAsync(_client).GetAwaiter().GetResult();
+    }
+
+    private static async Task AuthorizeClientAsync(HttpClient client)
+    {
+        var unique = Guid.NewGuid().ToString("N")[..8];
+        var reg = new RegisterRequestDto { Email = $"traj-{unique}@example.com", Password = "Password1!" };
+        var resp = await client.PostAsJsonAsync("/api/v1/auth/register", reg);
+        var auth = await resp.Content.ReadFromJsonAsync<AuthResponseDto>();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth!.Token);
     }
 
     [Fact]

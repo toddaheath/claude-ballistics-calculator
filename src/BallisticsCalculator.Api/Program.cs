@@ -1,8 +1,12 @@
+using System.Text;
+using BallisticsCalculator.Api.Services;
 using BallisticsCalculator.Core.Ballistics;
 using BallisticsCalculator.Core.Interfaces;
 using BallisticsCalculator.Infrastructure.Data;
 using BallisticsCalculator.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -40,7 +44,27 @@ builder.Services.AddDbContext<BallisticsDbContext>(options =>
 
 // DI registrations
 builder.Services.AddScoped<ICartridgeRepository, CartridgeRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<TrajectoryCalculator>();
+builder.Services.AddSingleton<JwtService>();
+
+// JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer           = true,
+            ValidateAudience         = true,
+            ValidateLifetime         = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer              = builder.Configuration["Jwt:Issuer"]   ?? "ballistics-api",
+            ValidAudience            = builder.Configuration["Jwt:Audience"] ?? "ballistics-client",
+            IssuerSigningKey         = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
+        };
+    });
+builder.Services.AddAuthorization();
 
 // CORS — origins configurable via CORS_ALLOWED_ORIGINS (comma-separated)
 var corsOrigins = builder.Configuration["CorsAllowedOrigins"]
@@ -87,6 +111,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 

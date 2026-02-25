@@ -38,3 +38,25 @@ export interface TrajectoryResponse {
   shotHeightInches: number;
   unitSystem: string;
 }
+
+export interface AuthUser {
+  userId: number;
+  email: string;
+  token: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  email: string;
+  userId: number;
+}
