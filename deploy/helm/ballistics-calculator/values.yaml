@@ -1,5 +1,8 @@
 api:
   replicaCount: 1
+  jwtSecret: ""      # required — supply via --set api.jwtSecret=... or CI secret
+  jwtIssuer: "ballistics-api"
+  jwtAudience: "ballistics-client"
   image:
     repository: ballistics-calculator-api
     tag: latest

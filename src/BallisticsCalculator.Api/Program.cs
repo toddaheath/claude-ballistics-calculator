@@ -19,6 +19,25 @@ builder.Host.UseSerilog((context, config) =>
         .Enrich.FromLogContext()
         .WriteTo.Console(new CompactJsonFormatter()));
 
+// Database (needed in all modes including --migrate-only)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Host=localhost;Database=ballistics;Username=postgres;Password=postgres";
+
+builder.Services.AddDbContext<BallisticsDbContext>(options =>
+    options.UseNpgsql(connectionString)
+           .UseSnakeCaseNamingConvention());
+
+// --migrate-only mode: run migrations and exit without registering auth/web services
+// Must be checked before JWT config so no Jwt:Secret is required in the migration job.
+if (args.Contains("--migrate-only"))
+{
+    var migrateApp = builder.Build();
+    using var scope = migrateApp.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BallisticsDbContext>();
+    db.Database.Migrate();
+    return;
+}
+
 // Add services
 builder.Services.AddControllers();
 builder.Services.AddApiVersioning(options =>
@@ -33,14 +52,6 @@ builder.Services.AddApiVersioning(options =>
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Host=localhost;Database=ballistics;Username=postgres;Password=postgres";
-
-builder.Services.AddDbContext<BallisticsDbContext>(options =>
-    options.UseNpgsql(connectionString)
-           .UseSnakeCaseNamingConvention());
 
 // DI registrations
 builder.Services.AddScoped<ICartridgeRepository, CartridgeRepository>();
@@ -61,7 +72,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer              = builder.Configuration["Jwt:Issuer"]   ?? "ballistics-api",
             ValidAudience            = builder.Configuration["Jwt:Audience"] ?? "ballistics-client",
             IssuerSigningKey         = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]!)),
+                Encoding.UTF8.GetBytes(
+                    builder.Configuration["Jwt:Secret"]
+                    ?? throw new InvalidOperationException("Jwt:Secret is not configured."))),
         };
     });
 builder.Services.AddAuthorization();
@@ -86,15 +99,6 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<BallisticsDbContext>();
 
 var app = builder.Build();
-
-// Handle --migrate-only mode (used by the K8s migration Job)
-if (args.Contains("--migrate-only"))
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<BallisticsDbContext>();
-    db.Database.Migrate();
-    return;
-}
 
 // Auto-apply migrations in development
 if (app.Environment.IsDevelopment())
