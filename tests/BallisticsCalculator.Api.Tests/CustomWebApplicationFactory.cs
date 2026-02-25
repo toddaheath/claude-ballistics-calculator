@@ -2,6 +2,7 @@ using BallisticsCalculator.Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BallisticsCalculator.Api.Tests;
@@ -12,6 +13,16 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureAppConfiguration(config =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Jwt:Secret"]   = "test-secret-that-is-at-least-32-characters-long",
+                ["Jwt:Issuer"]   = "ballistics-api",
+                ["Jwt:Audience"] = "ballistics-client",
+            });
+        });
+
         builder.ConfigureServices(services =>
         {
             // Remove all DbContext-related registrations

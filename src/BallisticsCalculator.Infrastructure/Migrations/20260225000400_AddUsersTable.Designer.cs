@@ -3,6 +3,7 @@ using System;
 using BallisticsCalculator.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BallisticsCalculator.Infrastructure.Migrations
 {
     [DbContext(typeof(BallisticsDbContext))]
-    partial class BallisticsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260225000400_AddUsersTable")]
+    partial class AddUsersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
