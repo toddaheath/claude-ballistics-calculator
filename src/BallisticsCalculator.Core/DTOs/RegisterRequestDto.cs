@@ -10,5 +10,6 @@ public class RegisterRequestDto
 
     [Required]
     [MinLength(8)]
+    [MaxLength(72)]
     public string Password { get; set; } = string.Empty;
 }

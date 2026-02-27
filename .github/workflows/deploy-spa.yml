@@ -56,6 +56,7 @@ jobs:
 
   deploy-prod:
     name: Deploy SPA to prod Storage
+    needs: deploy-dev
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment: prod

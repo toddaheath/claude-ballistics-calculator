@@ -15,6 +15,14 @@ public class TrajectoryCalculator
         double shotHeightInches = BallisticConstants.DefaultShotHeightInches,
         double sightHeightInches = BallisticConstants.DefaultSightHeightInches)
     {
+        ArgumentNullException.ThrowIfNull(cartridge);
+        if (cartridge.MuzzleVelocityFps <= 0)
+            throw new ArgumentException("MuzzleVelocityFps must be positive.", nameof(cartridge));
+        if (cartridge.BallisticCoefficientG1 <= 0)
+            throw new ArgumentException("BallisticCoefficientG1 must be positive.", nameof(cartridge));
+        if (cartridge.BulletWeightGrains <= 0)
+            throw new ArgumentException("BulletWeightGrains must be positive.", nameof(cartridge));
+
         double zeroRangeFt = zeroRangeYards * BallisticConstants.FeetPerYard;
         double maxRangeFt = maxRangeYards * BallisticConstants.FeetPerYard;
 

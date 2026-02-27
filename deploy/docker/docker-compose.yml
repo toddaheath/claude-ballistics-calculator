@@ -25,6 +25,9 @@ services:
       - "5000:8080"
     environment:
       ConnectionStrings__DefaultConnection: "Host=db;Database=ballistics;Username=postgres;Password=postgres"
+      Jwt__Secret: "docker-dev-secret-key-at-least-32-characters-long!"
+      Jwt__Issuer: "ballistics-api"
+      Jwt__Audience: "ballistics-client"
       ASPNETCORE_ENVIRONMENT: Development
     depends_on:
       db:
