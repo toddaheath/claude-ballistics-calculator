@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using BallisticsCalculator.Core.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -11,6 +12,9 @@ public class JwtService
     private readonly string _secret;
     private readonly string _issuer;
     private readonly string _audience;
+
+    public static readonly TimeSpan AccessTokenLifetime = TimeSpan.FromHours(1);
+    public static readonly TimeSpan RefreshTokenLifetime = TimeSpan.FromDays(7);
 
     public JwtService(IConfiguration configuration)
     {
@@ -35,9 +39,14 @@ public class JwtService
             issuer: _issuer,
             audience: _audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(24),
+            expires: DateTime.UtcNow.Add(AccessTokenLifetime),
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public static string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
 }

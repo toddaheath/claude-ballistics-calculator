@@ -12,6 +12,7 @@ public class BallisticsDbContext : DbContext
 
     public DbSet<Cartridge> Cartridges => Set<Cartridge>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

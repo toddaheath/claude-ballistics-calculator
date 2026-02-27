@@ -27,11 +27,14 @@ public class TrajectoryController : ControllerBase
     {
         var cartridge = await _repository.GetByIdAsync(request.CartridgeId);
         if (cartridge is null)
-            return NotFound($"Cartridge with ID {request.CartridgeId} not found.");
+            return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
 
         double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
         double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
         double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
+
+        if (zeroRange >= maxRange)
+            return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
 
         var result = _calculator.Calculate(cartridge, zeroRange, maxRange, shotHeight);
 
