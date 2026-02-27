@@ -56,7 +56,7 @@ export default function LoginPage() {
               autoComplete="current-password"
             />
           </div>
-          {error && <div className="error">{error}</div>}
+          {error && <div className="error" role="alert">{error}</div>}
           <button type="submit" className="auth-submit" disabled={loading}>
             {loading ? 'Signing in…' : 'Sign In'}
           </button>

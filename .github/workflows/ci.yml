@@ -59,3 +59,23 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  helm:
+    name: Helm Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.14.0'
+
+      - name: Lint with default values
+        run: helm lint deploy/helm/ballistics-calculator
+
+      - name: Lint with dev values
+        run: helm lint deploy/helm/ballistics-calculator -f deploy/helm/ballistics-calculator/values-dev.yaml
+
+      - name: Lint with prod values
+        run: helm lint deploy/helm/ballistics-calculator -f deploy/helm/ballistics-calculator/values-prod.yaml

@@ -234,14 +234,10 @@ public class TrajectoryCalculatorTests
     {
         var result = _calculator.Calculate(Create308Win168(), zeroRangeYards: 100);
 
-        // For a rifle zeroed at 100 yards, there should be a second crossing
-        // where the bullet re-matches its 50-yard height
-        // This is typically somewhere beyond the zero range
-        // For some configurations it may be 0 if not found
-        if (result.SecondCrossingRange > 0)
-        {
-            result.SecondCrossingRange.Should().BeGreaterThan(50);
-        }
+        // For a .308 Win zeroed at 100 yards, the second crossing (where the
+        // bullet re-matches its 50-yard height) should always be found and
+        // should be beyond 50 yards.
+        result.SecondCrossingRange.Should().BeGreaterThan(50);
     }
 
     [Fact]
@@ -290,5 +286,42 @@ public class TrajectoryCalculatorTests
         var result = _calculator.Calculate(Create308Win168(), maxRangeYards: 2000);
         result.Points.Should().NotBeEmpty();
         result.Points.Count.Should().BeGreaterThan(1000);
+    }
+
+    [Fact]
+    public void Calculate_NullCartridge_Throws()
+    {
+        var act = () => _calculator.Calculate(null!);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void Calculate_ZeroMuzzleVelocity_Throws()
+    {
+        var cartridge = Create308Win168();
+        cartridge.MuzzleVelocityFps = 0;
+
+        var act = () => _calculator.Calculate(cartridge);
+        act.Should().Throw<ArgumentException>().WithMessage("*MuzzleVelocityFps*");
+    }
+
+    [Fact]
+    public void Calculate_ZeroBallisticCoefficient_Throws()
+    {
+        var cartridge = Create308Win168();
+        cartridge.BallisticCoefficientG1 = 0;
+
+        var act = () => _calculator.Calculate(cartridge);
+        act.Should().Throw<ArgumentException>().WithMessage("*BallisticCoefficientG1*");
+    }
+
+    [Fact]
+    public void Calculate_ZeroBulletWeight_Throws()
+    {
+        var cartridge = Create308Win168();
+        cartridge.BulletWeightGrains = 0;
+
+        var act = () => _calculator.Calculate(cartridge);
+        act.Should().Throw<ArgumentException>().WithMessage("*BulletWeightGrains*");
     }
 }

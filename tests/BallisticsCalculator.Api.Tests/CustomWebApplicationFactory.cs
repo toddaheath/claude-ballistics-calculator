@@ -20,6 +20,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 ["Jwt:Secret"]   = "test-secret-that-is-at-least-32-characters-long",
                 ["Jwt:Issuer"]   = "ballistics-api",
                 ["Jwt:Audience"] = "ballistics-client",
+                ["DisableRateLimiting"] = "true",
             });
         });
 
@@ -38,6 +39,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             {
                 options.UseInMemoryDatabase(_dbName);
             });
+
         });
 
         builder.UseEnvironment("Development");

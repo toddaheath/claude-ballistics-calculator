@@ -1,39 +1,68 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense, Component } from 'react';
+import type { ReactNode, ErrorInfo } from 'react';
 import { HashRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import CartridgeSelector from './components/CartridgeSelector';
 import UnitToggle from './components/UnitToggle';
 import TrajectoryChart from './components/TrajectoryChart';
 import TrajectoryInfo from './components/TrajectoryInfo';
 import ProtectedRoute from './components/ProtectedRoute';
-import CartridgeReference from './pages/CartridgeReference';
-import HowItWorks from './pages/HowItWorks';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getCartridges, calculateTrajectory } from './services/api';
-import type { Cartridge, TrajectoryResponse } from './types';
+import type { Cartridge, TrajectoryResponse, UnitSystem } from './types';
 import './App.css';
+
+const CartridgeReference = lazy(() => import('./pages/CartridgeReference'));
+const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
 const DEFAULT_MAX_RANGE = 150;
 
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: Error, info: ErrorInfo) { console.error('ErrorBoundary caught:', error, info); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="error" style={{ textAlign: 'center', padding: '2rem' }}>
+          <h2>Something went wrong.</h2>
+          <button onClick={() => window.location.reload()}>Reload</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function Calculator() {
   const [cartridges, setCartridges] = useState<Cartridge[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [unitSystem, setUnitSystem] = useState('yards');
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>('yards');
   const [maxRange, setMaxRange] = useState(DEFAULT_MAX_RANGE);
   const [trajectory, setTrajectory] = useState<TrajectoryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     getCartridges()
       .then(setCartridges)
-      .catch(() => setError('Failed to load cartridges'));
+      .catch(() => { if (!controller.signal.aborted) setError('Failed to load cartridges'); });
+    return () => controller.abort();
   }, []);
 
-  const fetchTrajectory = useCallback(async (cartridgeId: number, unit: string, range: number) => {
+  const fetchTrajectory = useCallback(async (cartridgeId: number, unit: UnitSystem, range: number) => {
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setError(null);
     try {
@@ -42,32 +71,38 @@ function Calculator() {
         unitSystem: unit,
         maxRange: range,
       });
-      setTrajectory(result);
+      if (!controller.signal.aborted) {
+        setTrajectory(result);
+      }
     } catch {
-      setError('Failed to calculate trajectory');
+      if (!controller.signal.aborted) {
+        setError('Failed to calculate trajectory');
+      }
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, []);
 
-  const handleCartridgeSelect = (id: number) => {
+  const handleCartridgeSelect = useCallback((id: number) => {
     setSelectedId(id);
     fetchTrajectory(id, unitSystem, maxRange);
-  };
+  }, [fetchTrajectory, unitSystem, maxRange]);
 
-  const handleUnitChange = (unit: string) => {
+  const handleUnitChange = useCallback((unit: UnitSystem) => {
     setUnitSystem(unit);
     if (selectedId) {
       fetchTrajectory(selectedId, unit, maxRange);
     }
-  };
+  }, [fetchTrajectory, selectedId, maxRange]);
 
-  const handleMaxRangeChange = (range: number) => {
+  const handleMaxRangeChange = useCallback((range: number) => {
     setMaxRange(range);
     if (selectedId) {
       fetchTrajectory(selectedId, unitSystem, range);
     }
-  };
+  }, [fetchTrajectory, selectedId, unitSystem]);
 
   return (
     <>
@@ -85,14 +120,15 @@ function Calculator() {
         <UnitToggle unitSystem={unitSystem} onChange={handleUnitChange} />
       </div>
 
-      {error && <div className="error">{error}</div>}
-      {loading && <div className="loading">Calculating trajectory...</div>}
+      {error && <div className="error" role="alert">{error}</div>}
+      {loading && <div className="loading" role="status" aria-live="polite">Calculating trajectory...</div>}
 
       {trajectory && !loading && (
         <>
           <TrajectoryChart
             data={trajectory}
             maxRange={maxRange}
+            unitSystem={unitSystem}
             onMaxRangeChange={handleMaxRangeChange}
           />
           <TrajectoryInfo data={trajectory} />
@@ -152,14 +188,16 @@ function AppLayout() {
         </header>
 
         <main>
-          <Routes>
-            <Route path="/" element={<ProtectedRoute><Calculator /></ProtectedRoute>} />
-            <Route path="/cartridges" element={<CartridgeReference />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Suspense fallback={<div className="loading" role="status" aria-live="polite">Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<ProtectedRoute><Calculator /></ProtectedRoute>} />
+              <Route path="/cartridges" element={<CartridgeReference />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </main>
       </div>
     </HashRouter>
@@ -168,9 +206,11 @@ function AppLayout() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppLayout />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppLayout />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

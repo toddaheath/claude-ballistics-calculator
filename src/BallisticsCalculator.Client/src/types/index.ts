@@ -1,3 +1,5 @@
+export type UnitSystem = 'yards' | 'meters';
+
 export interface Cartridge {
   id: number;
   name: string;
@@ -22,7 +24,7 @@ export interface TrajectoryRequest {
   cartridgeId: number;
   zeroRange?: number;
   maxRange?: number;
-  unitSystem: string;
+  unitSystem: UnitSystem;
   shotHeightInches?: number;
 }
 
@@ -35,8 +37,8 @@ export interface TrajectoryResponse {
   boreElevationAngleMOA: number;
   heightAt50: number;
   secondCrossingRange: number;
-  shotHeightInches: number;
-  unitSystem: string;
+  shotHeight: number;
+  unitSystem: UnitSystem;
 }
 
 export interface AuthUser {
@@ -57,6 +59,7 @@ export interface LoginRequest {
 
 export interface AuthResponse {
   token: string;
+  refreshToken: string;
   email: string;
   userId: number;
 }

@@ -49,7 +49,7 @@ public class TrajectoryController : ControllerBase
             BoreElevationAngleMOA = result.BoreElevationAngleMOA,
             HeightAt50 = isMetric ? UnitConverter.InchesToCm(result.HeightAt50) : result.HeightAt50,
             SecondCrossingRange = isMetric ? UnitConverter.YardsToMeters(result.SecondCrossingRange) : result.SecondCrossingRange,
-            ShotHeightInches = isMetric ? UnitConverter.InchesToCm(shotHeight) : shotHeight,
+            ShotHeight = isMetric ? UnitConverter.InchesToCm(shotHeight) : shotHeight,
             UnitSystem = isMetric ? "meters" : "yards",
             Points = result.Points.Select(p => new TrajectoryPointDto
             {

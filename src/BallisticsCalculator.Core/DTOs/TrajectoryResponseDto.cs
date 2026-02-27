@@ -10,7 +10,7 @@ public class TrajectoryResponseDto
     public double BoreElevationAngleMOA { get; set; }
     public double HeightAt50 { get; set; }
     public double SecondCrossingRange { get; set; }
-    public double ShotHeightInches { get; set; }
+    public double ShotHeight { get; set; }
     public string UnitSystem { get; set; } = "yards";
 }
 

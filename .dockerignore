@@ -7,3 +7,12 @@
 .idea/
 **/.DS_Store
 **/Thumbs.db
+
+**/dist/
+**/coverage/
+**/*.md
+deploy/helm/
+tests/**/*.cs
+**/.env
+**/.env.*
+.claude/

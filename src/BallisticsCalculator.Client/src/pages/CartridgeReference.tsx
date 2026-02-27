@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import './CartridgeReference.css';
 
 interface CartridgeData {
@@ -97,14 +97,22 @@ export default function CartridgeReference() {
   const [search, setSearch] = useState('');
   const [selectedBulletType, setSelectedBulletType] = useState<string | null>(null);
 
-  const filtered = CARTRIDGES.filter(c => {
+  const filtered = useMemo(() => CARTRIDGES.filter(c => {
     const matchCat = activeCategory === 'All' || c.category === activeCategory;
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.bulletType.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
-  });
+  }), [activeCategory, search]);
 
-  const bulletTypes = Array.from(new Set(CARTRIDGES.map(c => c.bulletType))).sort();
+  const bulletTypes = useMemo(() => Array.from(new Set(CARTRIDGES.map(c => c.bulletType))).sort(), []);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const c of CARTRIDGES) {
+      counts[c.category] = (counts[c.category] || 0) + 1;
+    }
+    return counts;
+  }, []);
 
   return (
     <div className="ref-page">
@@ -128,7 +136,7 @@ export default function CartridgeReference() {
               {cat}
               {cat !== 'All' && (
                 <span className="cat-count">
-                  {CARTRIDGES.filter(c => c.category === cat).length}
+                  {categoryCounts[cat]}
                 </span>
               )}
               {cat === 'All' && <span className="cat-count">{CARTRIDGES.length}</span>}

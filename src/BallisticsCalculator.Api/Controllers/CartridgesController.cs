@@ -2,6 +2,7 @@ using Asp.Versioning;
 using BallisticsCalculator.Core.DTOs;
 using BallisticsCalculator.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace BallisticsCalculator.Api.Controllers;
 
@@ -11,15 +12,22 @@ namespace BallisticsCalculator.Api.Controllers;
 public class CartridgesController : ControllerBase
 {
     private readonly ICartridgeRepository _repository;
+    private readonly IMemoryCache _cache;
+    private const string AllCartridgesCacheKey = "all_cartridges";
 
-    public CartridgesController(ICartridgeRepository repository)
+    public CartridgesController(ICartridgeRepository repository, IMemoryCache cache)
     {
         _repository = repository;
+        _cache = cache;
     }
 
     [HttpGet]
+    [ResponseCache(Duration = 3600)]
     public async Task<ActionResult<List<CartridgeDto>>> GetAll()
     {
+        if (_cache.TryGetValue(AllCartridgesCacheKey, out List<CartridgeDto>? cached))
+            return Ok(cached);
+
         var cartridges = await _repository.GetAllAsync();
         var dtos = cartridges.Select(c => new CartridgeDto
         {
@@ -32,6 +40,7 @@ public class CartridgesController : ControllerBase
             BallisticCoefficientG1 = c.BallisticCoefficientG1
         }).ToList();
 
+        _cache.Set(AllCartridgesCacheKey, dtos, TimeSpan.FromHours(1));
         return Ok(dtos);
     }
 

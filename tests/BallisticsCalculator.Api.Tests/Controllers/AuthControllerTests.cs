@@ -2,7 +2,10 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BallisticsCalculator.Core.DTOs;
+using BallisticsCalculator.Infrastructure.Data;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BallisticsCalculator.Api.Tests.Controllers;
 
@@ -15,6 +18,15 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
     {
         _factory = factory;
         _client = factory.CreateClient();
+    }
+
+    private async Task<AuthResponseDto> RegisterAndGetTokens()
+    {
+        var email = $"refresh-{Guid.NewGuid()}@example.com";
+        var resp = await _client.PostAsJsonAsync("/api/v1/auth/register",
+            new RegisterRequestDto { Email = email, Password = "Password1!" });
+        resp.EnsureSuccessStatusCode();
+        return (await resp.Content.ReadFromJsonAsync<AuthResponseDto>())!;
     }
 
     [Fact]
@@ -110,6 +122,108 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
 
         var request = new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "yards" };
         var response = await authedClient.PostAsJsonAsync("/api/v1/trajectory", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    // ── Refresh endpoint tests ──────────────────────────────────────
+
+    [Fact]
+    public async Task Refresh_ValidToken_ReturnsNewTokens()
+    {
+        var auth = await RegisterAndGetTokens();
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = auth.RefreshToken });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        result.Should().NotBeNull();
+        result!.Token.Should().NotBeNullOrWhiteSpace();
+        result.RefreshToken.Should().NotBeNullOrWhiteSpace();
+        result.Token.Should().NotBe(auth.Token);
+        result.RefreshToken.Should().NotBe(auth.RefreshToken);
+    }
+
+    [Fact]
+    public async Task Refresh_ExpiredToken_Returns401()
+    {
+        var auth = await RegisterAndGetTokens();
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<BallisticsDbContext>();
+        var storedToken = await db.RefreshTokens.FirstAsync(t => t.Token == auth.RefreshToken);
+        storedToken.ExpiresAt = DateTime.UtcNow.AddDays(-1);
+        await db.SaveChangesAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = auth.RefreshToken });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Refresh_RevokedToken_Returns401()
+    {
+        var auth = await RegisterAndGetTokens();
+
+        using var scope = _factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<BallisticsDbContext>();
+        var storedToken = await db.RefreshTokens.FirstAsync(t => t.Token == auth.RefreshToken);
+        storedToken.IsRevoked = true;
+        await db.SaveChangesAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = auth.RefreshToken });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Refresh_InvalidToken_Returns401()
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = "not-a-real-token" });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Refresh_OldTokenAfterRotation_Returns401()
+    {
+        var auth = await RegisterAndGetTokens();
+        var originalRefreshToken = auth.RefreshToken;
+
+        // Rotate by refreshing once
+        var refreshResp = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = originalRefreshToken });
+        refreshResp.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Try using the old (now-revoked) token
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = originalRefreshToken });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    // ── Logout endpoint tests ───────────────────────────────────────
+
+    [Fact]
+    public async Task Logout_ValidToken_Returns200()
+    {
+        var auth = await RegisterAndGetTokens();
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/logout",
+            new RefreshRequestDto { RefreshToken = auth.RefreshToken });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task Logout_InvalidToken_Returns200()
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/logout",
+            new RefreshRequestDto { RefreshToken = "nonexistent-token" });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }

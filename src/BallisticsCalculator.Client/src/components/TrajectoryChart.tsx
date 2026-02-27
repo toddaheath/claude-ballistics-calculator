@@ -2,21 +2,24 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ReferenceDot, Legend, ResponsiveContainer, Label
 } from 'recharts';
-import type { TrajectoryResponse } from '../types';
+import type { TrajectoryResponse, UnitSystem } from '../types';
 
-const RANGE_PRESETS = [150, 300, 500, 750, 1000]; // yards
+const RANGE_PRESETS_YARDS = [150, 300, 500, 750, 1000];
+const RANGE_PRESETS_METERS = [150, 300, 500, 750, 1000];
 
 interface Props {
   data: TrajectoryResponse;
   maxRange: number;
+  unitSystem: UnitSystem;
   onMaxRangeChange: (range: number) => void;
 }
 
-export default function TrajectoryChart({ data, maxRange, onMaxRangeChange }: Props) {
-  const isMetric = data.unitSystem === 'meters';
+export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRangeChange }: Props) {
+  const isMetric = unitSystem === 'meters';
   const rangeLabel = isMetric ? 'Range (m)' : 'Range (yards)';
   const heightLabel = isMetric ? 'Height (cm)' : 'Height (inches)';
   const unit = isMetric ? 'm' : 'yd';
+  const rangePresets = isMetric ? RANGE_PRESETS_METERS : RANGE_PRESETS_YARDS;
 
   // Downsample to every 5 points for chart performance
   const chartData = data.points.filter((_, i) => i % 5 === 0 || i === data.points.length - 1);
@@ -29,13 +32,13 @@ export default function TrajectoryChart({ data, maxRange, onMaxRangeChange }: Pr
         <h3>Trajectory: {data.cartridgeName}</h3>
         <div className="range-presets">
           <span className="range-presets-label">Max range:</span>
-          {RANGE_PRESETS.map((r) => (
+          {rangePresets.map((r) => (
             <button
               key={r}
               className={`range-btn${maxRange === r ? ' active' : ''}`}
               onClick={() => onMaxRangeChange(r)}
             >
-              {r}yd
+              {r}{unit}
             </button>
           ))}
         </div>

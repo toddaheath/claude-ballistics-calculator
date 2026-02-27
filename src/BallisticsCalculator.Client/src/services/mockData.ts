@@ -103,7 +103,7 @@ export const mockTrajectoryData: Record<string, TrajectoryResponse> = {
     boreElevationAngleMOA: 1.82,
     heightAt50: 0.95,
     secondCrossingRange: 118,
-    shotHeightInches: 30,
+    shotHeight: 30,
     unitSystem: 'yards',
     points: [
       { range: 0, height: -1.5, velocity: 2680, energy: 2678, timeOfFlight: 0, mach: 2.39, drop: 0 },
@@ -137,7 +137,7 @@ export const mockTrajectoryData: Record<string, TrajectoryResponse> = {
     boreElevationAngleMOA: 1.82,
     heightAt50: 2.41,
     secondCrossingRange: 107.9,
-    shotHeightInches: 30,
+    shotHeight: 30,
     unitSystem: 'meters',
     points: [
       { range: 0, height: -3.81, velocity: 817, energy: 3632, timeOfFlight: 0, mach: 2.39, drop: 0 },
