@@ -374,6 +374,14 @@ main {
   border-color: #e0b0b0;
 }
 
+/* ── Focus-visible outlines ── */
+
+.range-btn:focus-visible,
+.unit-toggle button:focus-visible {
+  outline: 2px solid #2980b9;
+  outline-offset: 2px;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 640px) {

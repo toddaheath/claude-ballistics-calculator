@@ -37,15 +37,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(request: LoginRequest) {
     const resp = await loginUser(request);
+    localStorage.setItem('refresh_token', resp.refreshToken);
     setUser({ userId: resp.userId, email: resp.email, token: resp.token });
   }
 
   async function register(request: RegisterRequest) {
     const resp = await registerUser(request);
+    localStorage.setItem('refresh_token', resp.refreshToken);
     setUser({ userId: resp.userId, email: resp.email, token: resp.token });
   }
 
   function logout() {
+    localStorage.removeItem('refresh_token');
     setUser(null);
   }
 

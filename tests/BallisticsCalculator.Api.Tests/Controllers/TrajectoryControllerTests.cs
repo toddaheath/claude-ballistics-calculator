@@ -127,7 +127,7 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
         var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
 
-        result!.ShotHeightInches.Should().Be(48);
+        result!.ShotHeight.Should().Be(48);
     }
 
     [Fact]
@@ -138,7 +138,37 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
         var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
 
-        result!.ShotHeightInches.Should().Be(30);
+        result!.ShotHeight.Should().Be(30);
+    }
+
+    [Fact]
+    public async Task Calculate_CartridgeIdZero_Returns400()
+    {
+        var request = new TrajectoryRequestDto { CartridgeId = 0, UnitSystem = "yards" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Calculate_MaxRangeTooSmall_Returns400()
+    {
+        var request = new TrajectoryRequestDto { CartridgeId = 29, MaxRange = 5, UnitSystem = "yards" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Calculate_ZeroRangeExceedsMaxRange_Returns400()
+    {
+        var request = new TrajectoryRequestDto { CartridgeId = 29, ZeroRange = 500, MaxRange = 200, UnitSystem = "yards" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

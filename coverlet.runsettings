@@ -7,6 +7,7 @@
           <Format>cobertura</Format>
           <Exclude>[*]BallisticsCalculator.Infrastructure.Migrations.*,[*]Program</Exclude>
           <ExcludeByFile>**/Migrations/**</ExcludeByFile>
+          <Threshold>70</Threshold>
         </Configuration>
       </DataCollector>
     </DataCollectors>

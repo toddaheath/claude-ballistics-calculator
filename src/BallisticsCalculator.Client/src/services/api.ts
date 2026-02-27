@@ -17,6 +17,23 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
+// Handle 401 responses — clear auth state and redirect to login
+client.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // Don't redirect for auth endpoints (login/register failures are expected)
+      const url = error.config?.url ?? '';
+      if (!url.includes('/auth/')) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        window.location.hash = '#/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export async function getCartridges(): Promise<Cartridge[]> {
   if (isDemoMode) {
     return mockCartridges;

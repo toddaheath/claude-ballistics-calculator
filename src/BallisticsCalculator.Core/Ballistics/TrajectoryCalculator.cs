@@ -35,7 +35,7 @@ public class TrajectoryCalculator
             sightHeightInches, shotHeightInches);
 
         // Find height at 50 yards
-        double heightAt50 = InterpolateHeightAtRange(points, 50.0);
+        double heightAt50 = GetHeightAtYardMark(points, 50.0);
 
         // Find the second crossing range where bullet height matches 50-yard height
         double secondCrossingRange = FindSecondCrossingRange(points, heightAt50);
@@ -89,34 +89,11 @@ public class TrajectoryCalculator
         double x = 0;
         double y = -sightHeightFt; // Bore starts below sight line
 
-        double bulletMass = cartridge.BulletWeightGrains / BallisticConstants.GrainsPerPound /
-                           BallisticConstants.Gravity; // mass in slugs (weight/g)
+        double bc = cartridge.BallisticCoefficientG1;
 
         while (x < rangeFt)
         {
-            var (k1vx, k1vy) = ComputeAcceleration(vx, vy, cartridge.BallisticCoefficientG1, bulletMass);
-            double k1x = vx;
-            double k1y = vy;
-
-            var (k2vx, k2vy) = ComputeAcceleration(vx + k1vx * Dt / 2, vy + k1vy * Dt / 2,
-                cartridge.BallisticCoefficientG1, bulletMass);
-            double k2x = vx + k1vx * Dt / 2;
-            double k2y = vy + k1vy * Dt / 2;
-
-            var (k3vx, k3vy) = ComputeAcceleration(vx + k2vx * Dt / 2, vy + k2vy * Dt / 2,
-                cartridge.BallisticCoefficientG1, bulletMass);
-            double k3x = vx + k2vx * Dt / 2;
-            double k3y = vy + k2vy * Dt / 2;
-
-            var (k4vx, k4vy) = ComputeAcceleration(vx + k3vx * Dt, vy + k3vy * Dt,
-                cartridge.BallisticCoefficientG1, bulletMass);
-            double k4x = vx + k3vx * Dt;
-            double k4y = vy + k3vy * Dt;
-
-            x += Dt * (k1x + 2 * k2x + 2 * k3x + k4x) / 6;
-            y += Dt * (k1y + 2 * k2y + 2 * k3y + k4y) / 6;
-            vx += Dt * (k1vx + 2 * k2vx + 2 * k3vx + k4vx) / 6;
-            vy += Dt * (k1vy + 2 * k2vy + 2 * k3vy + k4vy) / 6;
+            (x, y, vx, vy) = RK4Step(x, y, vx, vy, bc);
         }
 
         return y; // Height relative to line of sight in feet
@@ -131,8 +108,7 @@ public class TrajectoryCalculator
         double x = 0;
         double y = -sightHeightFt; // Bore starts below sight line
 
-        double bulletMass = cartridge.BulletWeightGrains / BallisticConstants.GrainsPerPound /
-                           BallisticConstants.Gravity;
+        double bc = cartridge.BallisticCoefficientG1;
 
         var points = new List<TrajectoryPoint>();
         double time = 0;
@@ -142,7 +118,6 @@ public class TrajectoryCalculator
         // Record a point at each yard
         while (x <= maxRangeFt)
         {
-            double rangeYards = x / BallisticConstants.FeetPerYard;
             double velocity = Math.Sqrt(vx * vx + vy * vy);
 
             if (x >= nextYardMark * yardInFt)
@@ -167,38 +142,42 @@ public class TrajectoryCalculator
                 nextYardMark += 1;
             }
 
-            // RK4 integration step
-            var (k1vx, k1vy) = ComputeAcceleration(vx, vy, cartridge.BallisticCoefficientG1, bulletMass);
-            double k1x = vx;
-            double k1y = vy;
-
-            var (k2vx, k2vy) = ComputeAcceleration(vx + k1vx * Dt / 2, vy + k1vy * Dt / 2,
-                cartridge.BallisticCoefficientG1, bulletMass);
-            double k2x = vx + k1vx * Dt / 2;
-            double k2y = vy + k1vy * Dt / 2;
-
-            var (k3vx, k3vy) = ComputeAcceleration(vx + k2vx * Dt / 2, vy + k2vy * Dt / 2,
-                cartridge.BallisticCoefficientG1, bulletMass);
-            double k3x = vx + k2vx * Dt / 2;
-            double k3y = vy + k2vy * Dt / 2;
-
-            var (k4vx, k4vy) = ComputeAcceleration(vx + k3vx * Dt, vy + k3vy * Dt,
-                cartridge.BallisticCoefficientG1, bulletMass);
-            double k4x = vx + k3vx * Dt;
-            double k4y = vy + k3vy * Dt;
-
-            x += Dt * (k1x + 2 * k2x + 2 * k3x + k4x) / 6;
-            y += Dt * (k1y + 2 * k2y + 2 * k3y + k4y) / 6;
-            vx += Dt * (k1vx + 2 * k2vx + 2 * k3vx + k4vx) / 6;
-            vy += Dt * (k1vy + 2 * k2vy + 2 * k3vy + k4vy) / 6;
+            (x, y, vx, vy) = RK4Step(x, y, vx, vy, bc);
             time += Dt;
         }
 
         return points;
     }
 
-    private (double ax, double ay) ComputeAcceleration(double vx, double vy,
-        double ballisticCoefficient, double bulletMass)
+    private (double x, double y, double vx, double vy) RK4Step(
+        double x, double y, double vx, double vy, double bc)
+    {
+        var (k1vx, k1vy) = ComputeAcceleration(vx, vy, bc);
+        double k1x = vx;
+        double k1y = vy;
+
+        var (k2vx, k2vy) = ComputeAcceleration(vx + k1vx * Dt / 2, vy + k1vy * Dt / 2, bc);
+        double k2x = vx + k1vx * Dt / 2;
+        double k2y = vy + k1vy * Dt / 2;
+
+        var (k3vx, k3vy) = ComputeAcceleration(vx + k2vx * Dt / 2, vy + k2vy * Dt / 2, bc);
+        double k3x = vx + k2vx * Dt / 2;
+        double k3y = vy + k2vy * Dt / 2;
+
+        var (k4vx, k4vy) = ComputeAcceleration(vx + k3vx * Dt, vy + k3vy * Dt, bc);
+        double k4x = vx + k3vx * Dt;
+        double k4y = vy + k3vy * Dt;
+
+        return (
+            x + Dt * (k1x + 2 * k2x + 2 * k3x + k4x) / 6,
+            y + Dt * (k1y + 2 * k2y + 2 * k3y + k4y) / 6,
+            vx + Dt * (k1vx + 2 * k2vx + 2 * k3vx + k4vx) / 6,
+            vy + Dt * (k1vy + 2 * k2vy + 2 * k3vy + k4vy) / 6
+        );
+    }
+
+    private static (double ax, double ay) ComputeAcceleration(double vx, double vy,
+        double ballisticCoefficient)
     {
         double velocity = Math.Sqrt(vx * vx + vy * vy);
         if (velocity < 1.0) return (0, -BallisticConstants.Gravity);
@@ -229,19 +208,16 @@ public class TrajectoryCalculator
         return -dropFt * BallisticConstants.InchesPerFoot;
     }
 
-    private static double InterpolateHeightAtRange(List<TrajectoryPoint> points, double rangeYards)
+    // Points are recorded at 1-yard intervals starting at 0, so index == yard mark
+    private static double GetHeightAtYardMark(List<TrajectoryPoint> points, double rangeYards)
     {
         if (points.Count == 0) return 0;
 
         int idx = (int)rangeYards;
-        if (idx >= points.Count) return points[^1].Height;
         if (idx < 0) return points[0].Height;
+        if (idx >= points.Count) return points[^1].Height;
 
-        // Points are at 1-yard intervals starting at 0
-        if (idx < points.Count)
-            return points[idx].Height;
-
-        return points[^1].Height;
+        return points[idx].Height;
     }
 
     private static double FindSecondCrossingRange(List<TrajectoryPoint> points, double heightAt50)

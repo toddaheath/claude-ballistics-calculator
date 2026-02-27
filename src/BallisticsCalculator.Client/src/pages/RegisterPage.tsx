@@ -73,7 +73,7 @@ export default function RegisterPage() {
               autoComplete="new-password"
             />
           </div>
-          {error && <div className="error">{error}</div>}
+          {error && <div className="error" role="alert">{error}</div>}
           <button type="submit" className="auth-submit" disabled={loading}>
             {loading ? 'Creating account…' : 'Register'}
           </button>

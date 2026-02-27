@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { Cartridge } from '../types';
 
 interface Props {
@@ -9,11 +10,11 @@ interface Props {
 const categoryOrder = ['Handgun', 'Intermediate', 'Standard Rifle', 'Magnum'];
 
 export default function CartridgeSelector({ cartridges, selectedId, onSelect }: Props) {
-  const grouped = cartridges.reduce<Record<string, Cartridge[]>>((acc, c) => {
+  const grouped = useMemo(() => cartridges.reduce<Record<string, Cartridge[]>>((acc, c) => {
     if (!acc[c.category]) acc[c.category] = [];
     acc[c.category].push(c);
     return acc;
-  }, {});
+  }, {}), [cartridges]);
 
   return (
     <div className="cartridge-selector">
