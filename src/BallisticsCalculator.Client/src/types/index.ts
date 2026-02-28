@@ -40,6 +40,7 @@ export interface TrajectoryRequest {
   pressureInHg?: number;
   humidityPercent?: number;
   shootingAngleDeg?: number;
+  dragModel?: string; // "G1" or "G7"
 }
 
 export interface TrajectoryResponse {
@@ -54,6 +55,7 @@ export interface TrajectoryResponse {
   shotHeight: number;
   unitSystem: UnitSystem;
   transonicRange: number;
+  dragModel: string;
 }
 
 export interface EnvironmentSettings {
@@ -67,6 +69,29 @@ export interface EnvironmentSettings {
   sightHeightInches: number;
   shotHeightInches: number;
   shootingAngleDeg: number;
+  dragModel: string;
+}
+
+export interface CompareRequest {
+  cartridgeIds: number[];
+  zeroRange?: number;
+  maxRange?: number;
+  unitSystem: UnitSystem;
+  windSpeedMph?: number;
+  windDirectionDeg?: number;
+  temperatureF?: number;
+  altitudeFt?: number;
+  pressureInHg?: number;
+  humidityPercent?: number;
+  sightHeightInches?: number;
+  shotHeightInches?: number;
+  shootingAngleDeg?: number;
+  dragModel?: string;
+}
+
+export interface CompareResponse {
+  trajectories: TrajectoryResponse[];
+  unitSystem: UnitSystem;
 }
 
 export interface AuthUser {

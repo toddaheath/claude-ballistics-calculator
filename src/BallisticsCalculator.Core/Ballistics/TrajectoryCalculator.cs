@@ -20,7 +20,8 @@ public class TrajectoryCalculator
         double altitudeFt = BallisticConstants.StandardAltitudeFt,
         double pressureInHg = BallisticConstants.StandardPressureInHg,
         double humidityPercent = BallisticConstants.StandardHumidityPercent,
-        double shootingAngleDeg = 0)
+        double shootingAngleDeg = 0,
+        DragModel dragModel = DragModel.G1)
     {
         ArgumentNullException.ThrowIfNull(cartridge);
         if (cartridge.MuzzleVelocityFps <= 0)
@@ -42,7 +43,7 @@ public class TrajectoryCalculator
 
         // Find the bore elevation angle so the bullet crosses line of sight at zero range
         double boreAngleRad = FindZeroAngle(cartridge, zeroRangeFt, sightHeightInches,
-            airDensity, effectiveGravity);
+            airDensity, effectiveGravity, dragModel);
         double boreAngleMOA = boreAngleRad * BallisticConstants.MOAPerRadian;
 
         // Wind parameters
@@ -53,7 +54,7 @@ public class TrajectoryCalculator
         // Integrate the full trajectory
         var points = IntegrateTrajectory(cartridge, boreAngleRad, maxRangeFt,
             sightHeightInches, shotHeightInches, airDensity, effectiveGravity,
-            crosswind);
+            crosswind, dragModel);
 
         // Find height at 50 yards
         double heightAt50 = GetHeightAtYardMark(points, 50.0);
@@ -108,7 +109,8 @@ public class TrajectoryCalculator
     }
 
     private double FindZeroAngle(Cartridge cartridge, double zeroRangeFt,
-        double sightHeightInches, double airDensity, double gravity)
+        double sightHeightInches, double airDensity, double gravity,
+        DragModel dragModel = DragModel.G1)
     {
         double sightHeightFt = sightHeightInches / BallisticConstants.InchesPerFoot;
 
@@ -120,7 +122,7 @@ public class TrajectoryCalculator
         {
             double midAngle = (lowAngle + highAngle) / 2.0;
             double heightAtZero = SimulateHeightAtRange(cartridge, midAngle, zeroRangeFt,
-                sightHeightFt, airDensity, gravity);
+                sightHeightFt, airDensity, gravity, dragModel);
 
             if (Math.Abs(heightAtZero) < ZeroTolerance / BallisticConstants.InchesPerFoot)
                 return midAngle;
@@ -135,7 +137,8 @@ public class TrajectoryCalculator
     }
 
     private double SimulateHeightAtRange(Cartridge cartridge, double angleRad,
-        double rangeFt, double sightHeightFt, double airDensity, double gravity)
+        double rangeFt, double sightHeightFt, double airDensity, double gravity,
+        DragModel dragModel = DragModel.G1)
     {
         double vx = cartridge.MuzzleVelocityFps * Math.Cos(angleRad);
         double vy = cartridge.MuzzleVelocityFps * Math.Sin(angleRad);
@@ -146,7 +149,7 @@ public class TrajectoryCalculator
 
         while (x < rangeFt)
         {
-            (x, y, vx, vy) = RK4Step(x, y, vx, vy, bc, airDensity, gravity);
+            (x, y, vx, vy) = RK4Step(x, y, vx, vy, bc, airDensity, gravity, dragModel);
         }
 
         return y; // Height relative to line of sight in feet
@@ -154,7 +157,8 @@ public class TrajectoryCalculator
 
     private List<TrajectoryPoint> IntegrateTrajectory(Cartridge cartridge, double angleRad,
         double maxRangeFt, double sightHeightInches, double shotHeightInches,
-        double airDensity, double gravity, double crosswind)
+        double airDensity, double gravity, double crosswind,
+        DragModel dragModel = DragModel.G1)
     {
         double sightHeightFt = sightHeightInches / BallisticConstants.InchesPerFoot;
         double vx = cartridge.MuzzleVelocityFps * Math.Cos(angleRad);
@@ -227,7 +231,7 @@ public class TrajectoryCalculator
                 nextYardMark += 1;
             }
 
-            (x, y, vx, vy) = RK4Step(x, y, vx, vy, bc, airDensity, gravity);
+            (x, y, vx, vy) = RK4Step(x, y, vx, vy, bc, airDensity, gravity, dragModel);
             time += Dt;
         }
 
@@ -236,21 +240,21 @@ public class TrajectoryCalculator
 
     private (double x, double y, double vx, double vy) RK4Step(
         double x, double y, double vx, double vy, double bc,
-        double airDensity, double gravity)
+        double airDensity, double gravity, DragModel dragModel = DragModel.G1)
     {
-        var (k1vx, k1vy) = ComputeAcceleration(vx, vy, bc, airDensity, gravity);
+        var (k1vx, k1vy) = ComputeAcceleration(vx, vy, bc, airDensity, gravity, dragModel);
         double k1x = vx;
         double k1y = vy;
 
-        var (k2vx, k2vy) = ComputeAcceleration(vx + k1vx * Dt / 2, vy + k1vy * Dt / 2, bc, airDensity, gravity);
+        var (k2vx, k2vy) = ComputeAcceleration(vx + k1vx * Dt / 2, vy + k1vy * Dt / 2, bc, airDensity, gravity, dragModel);
         double k2x = vx + k1vx * Dt / 2;
         double k2y = vy + k1vy * Dt / 2;
 
-        var (k3vx, k3vy) = ComputeAcceleration(vx + k2vx * Dt / 2, vy + k2vy * Dt / 2, bc, airDensity, gravity);
+        var (k3vx, k3vy) = ComputeAcceleration(vx + k2vx * Dt / 2, vy + k2vy * Dt / 2, bc, airDensity, gravity, dragModel);
         double k3x = vx + k2vx * Dt / 2;
         double k3y = vy + k2vy * Dt / 2;
 
-        var (k4vx, k4vy) = ComputeAcceleration(vx + k3vx * Dt, vy + k3vy * Dt, bc, airDensity, gravity);
+        var (k4vx, k4vy) = ComputeAcceleration(vx + k3vx * Dt, vy + k3vy * Dt, bc, airDensity, gravity, dragModel);
         double k4x = vx + k3vx * Dt;
         double k4y = vy + k3vy * Dt;
 
@@ -263,13 +267,16 @@ public class TrajectoryCalculator
     }
 
     private static (double ax, double ay) ComputeAcceleration(double vx, double vy,
-        double ballisticCoefficient, double airDensity, double gravity)
+        double ballisticCoefficient, double airDensity, double gravity,
+        DragModel dragModel = DragModel.G1)
     {
         double velocity = Math.Sqrt(vx * vx + vy * vy);
         if (velocity < 1.0) return (0, -gravity);
 
         double mach = velocity / BallisticConstants.SpeedOfSound;
-        double cd = G1DragModel.GetDragCoefficient(mach);
+        double cd = dragModel == DragModel.G7
+            ? G7DragModel.GetDragCoefficient(mach)
+            : G1DragModel.GetDragCoefficient(mach);
 
         // BC is given in lb/in². Convert to slugs/ft² for fps unit system:
         // 1 lb = 1/g slugs, 1 in² = 1/144 ft² => BC_fps = BC * 144 / g

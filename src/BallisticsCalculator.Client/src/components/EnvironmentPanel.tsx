@@ -164,6 +164,17 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
                   onChange={(e) => update({ shootingAngleDeg: Number(e.target.value) })}
                 />
               </div>
+              <div className="env-field">
+                <label htmlFor="env-drag-model">Drag Model</label>
+                <select
+                  id="env-drag-model"
+                  value={settings.dragModel}
+                  onChange={(e) => update({ dragModel: e.target.value })}
+                >
+                  <option value="G1">G1 (flat base)</option>
+                  <option value="G7">G7 (boat tail)</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>

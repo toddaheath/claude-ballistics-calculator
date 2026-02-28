@@ -2,6 +2,7 @@ using Asp.Versioning;
 using BallisticsCalculator.Core.Ballistics;
 using BallisticsCalculator.Core.DTOs;
 using BallisticsCalculator.Core.Interfaces;
+using BallisticsCalculator.Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,6 +30,8 @@ public class TrajectoryController : ControllerBase
         if (cartridge is null)
             return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
 
+        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+
         double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
         double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
         double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
@@ -48,11 +51,136 @@ public class TrajectoryController : ControllerBase
             altitudeFt: request.AltitudeFt ?? BallisticConstants.StandardAltitudeFt,
             pressureInHg: request.PressureInHg ?? BallisticConstants.StandardPressureInHg,
             humidityPercent: request.HumidityPercent ?? BallisticConstants.StandardHumidityPercent,
-            shootingAngleDeg: request.ShootingAngleDeg ?? 0);
+            shootingAngleDeg: request.ShootingAngleDeg ?? 0,
+            dragModel: dragModel);
 
         bool isMetric = request.UnitSystem?.ToLowerInvariant() == "meters";
 
-        var response = new TrajectoryResponseDto
+        var response = MapToResponseDto(result, isMetric, shotHeight);
+        response.DragModel = dragModel == DragModel.G7 ? "G7" : "G1";
+
+        return Ok(response);
+    }
+
+    [HttpPost("compare")]
+    public async Task<ActionResult<CompareResponseDto>> Compare([FromBody] CompareRequestDto request)
+    {
+        // Validate all cartridge IDs exist
+        var cartridges = new List<Cartridge>();
+        foreach (var id in request.CartridgeIds)
+        {
+            var cartridge = await _repository.GetByIdAsync(id);
+            if (cartridge is null)
+                return NotFound(new { message = $"Cartridge with ID {id} not found." });
+            cartridges.Add(cartridge);
+        }
+
+        // Parse drag model
+        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+
+        double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
+        double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
+        double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
+        bool isMetric = request.UnitSystem?.ToLowerInvariant() == "meters";
+
+        if (zeroRange >= maxRange)
+            return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
+
+        var trajectories = new List<TrajectoryResponseDto>();
+
+        foreach (var cartridge in cartridges)
+        {
+            var result = _calculator.Calculate(
+                cartridge,
+                zeroRange,
+                maxRange,
+                shotHeight,
+                sightHeightInches: request.SightHeightInches ?? BallisticConstants.DefaultSightHeightInches,
+                windSpeedMph: request.WindSpeedMph ?? 0,
+                windDirectionDeg: request.WindDirectionDeg ?? 0,
+                temperatureF: request.TemperatureF ?? BallisticConstants.StandardTemperatureF,
+                altitudeFt: request.AltitudeFt ?? BallisticConstants.StandardAltitudeFt,
+                pressureInHg: request.PressureInHg ?? BallisticConstants.StandardPressureInHg,
+                humidityPercent: request.HumidityPercent ?? BallisticConstants.StandardHumidityPercent,
+                shootingAngleDeg: request.ShootingAngleDeg ?? 0,
+                dragModel: dragModel);
+
+            var dto = MapToResponseDto(result, isMetric, shotHeight);
+            dto.DragModel = dragModel == DragModel.G7 ? "G7" : "G1";
+            trajectories.Add(dto);
+        }
+
+        return Ok(new CompareResponseDto
+        {
+            Trajectories = trajectories,
+            UnitSystem = isMetric ? "meters" : "yards"
+        });
+    }
+
+    [HttpPost("dope-card")]
+    public async Task<IActionResult> DopeCard([FromBody] TrajectoryRequestDto request)
+    {
+        var cartridge = await _repository.GetByIdAsync(request.CartridgeId);
+        if (cartridge is null)
+            return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
+
+        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+
+        double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
+        double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
+        double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
+
+        if (zeroRange >= maxRange)
+            return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
+
+        var result = _calculator.Calculate(
+            cartridge,
+            zeroRange,
+            maxRange,
+            shotHeight,
+            sightHeightInches: request.SightHeightInches ?? BallisticConstants.DefaultSightHeightInches,
+            windSpeedMph: request.WindSpeedMph ?? 0,
+            windDirectionDeg: request.WindDirectionDeg ?? 0,
+            temperatureF: request.TemperatureF ?? BallisticConstants.StandardTemperatureF,
+            altitudeFt: request.AltitudeFt ?? BallisticConstants.StandardAltitudeFt,
+            pressureInHg: request.PressureInHg ?? BallisticConstants.StandardPressureInHg,
+            humidityPercent: request.HumidityPercent ?? BallisticConstants.StandardHumidityPercent,
+            shootingAngleDeg: request.ShootingAngleDeg ?? 0,
+            dragModel: dragModel);
+
+        bool isMetric = request.UnitSystem?.ToLowerInvariant() == "meters";
+        var mapped = MapToResponseDto(result, isMetric, shotHeight);
+
+        // Filter points for DOPE card at practical intervals
+        var dopePoints = mapped.Points.Where(p =>
+        {
+            if (p.Range == 0) return false;
+            if (p.Range <= 300) return p.Range % 25 == 0;
+            if (p.Range <= 500) return p.Range % 50 == 0;
+            return p.Range % 100 == 0;
+        }).ToList();
+
+        var unitLabel = isMetric ? "m" : "yd";
+
+        // Build CSV
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"# DOPE Card: {result.CartridgeName}");
+        sb.AppendLine($"# Zero Range: {mapped.ZeroRange:F0} {unitLabel}");
+        sb.AppendLine($"# Drag Model: {(dragModel == DragModel.G7 ? "G7" : "G1")}");
+        sb.AppendLine($"# Date: {DateTime.UtcNow:yyyy-MM-dd}");
+        sb.AppendLine("Range,Height,Velocity,Energy,Drop MOA,Drop Mils,Wind MOA,Wind Mils,Time of Flight");
+
+        foreach (var p in dopePoints)
+        {
+            sb.AppendLine($"{p.Range:F0},{p.Height:F2},{p.Velocity:F0},{p.Energy:F0},{p.DropMoa:F2},{p.DropMils:F2},{p.WindDriftMoa:F2},{p.WindDriftMils:F2},{p.TimeOfFlight:F3}");
+        }
+
+        return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "dope-card.csv");
+    }
+
+    private static TrajectoryResponseDto MapToResponseDto(TrajectoryResult result, bool isMetric, double shotHeight)
+    {
+        return new TrajectoryResponseDto
         {
             CartridgeName = result.CartridgeName,
             ZeroRange = isMetric ? UnitConverter.YardsToMeters(result.ZeroRange) : result.ZeroRange,
@@ -81,7 +209,5 @@ public class TrajectoryController : ControllerBase
                 IsTransonic = p.IsTransonic
             }).ToList()
         };
-
-        return Ok(response);
     }
 }

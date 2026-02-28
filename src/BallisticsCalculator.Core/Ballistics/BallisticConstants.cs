@@ -1,5 +1,11 @@
 namespace BallisticsCalculator.Core.Ballistics;
 
+public enum DragModel
+{
+    G1,
+    G7
+}
+
 public static class BallisticConstants
 {
     // Gravity

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AuthResponse, Cartridge, LoginRequest, RegisterRequest, TrajectoryRequest, TrajectoryResponse } from '../types';
+import type { AuthResponse, Cartridge, CompareRequest, CompareResponse, LoginRequest, RegisterRequest, TrajectoryRequest, TrajectoryResponse } from '../types';
 import { mockCartridges, mockTrajectoryData } from './mockData';
 
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
@@ -58,5 +58,30 @@ export async function registerUser(request: RegisterRequest): Promise<AuthRespon
 
 export async function loginUser(request: LoginRequest): Promise<AuthResponse> {
   const response = await client.post<AuthResponse>('/auth/login', request);
+  return response.data;
+}
+
+export async function compareTrajectories(request: CompareRequest): Promise<CompareResponse> {
+  if (isDemoMode) {
+    // In demo mode, return mock comparison data
+    const unit = request.unitSystem === 'meters' ? 'meters' : 'yards';
+    return {
+      trajectories: request.cartridgeIds.slice(0, 2).map(() => mockTrajectoryData[unit]),
+      unitSystem: request.unitSystem,
+    };
+  }
+  const response = await client.post<CompareResponse>('/trajectory/compare', request);
+  return response.data;
+}
+
+export async function downloadDopeCard(request: TrajectoryRequest): Promise<Blob> {
+  if (isDemoMode) {
+    // Return a simple mock CSV
+    const csv = 'Range,Height,Velocity,Energy,Drop MOA,Drop Mils\n100,0.00,2474,2276,0.00,0.00\n200,0.28,2279,1918,-1.83,-0.53\n';
+    return new Blob([csv], { type: 'text/csv' });
+  }
+  const response = await client.post('/trajectory/dope-card', request, {
+    responseType: 'blob',
+  });
   return response.data;
 }

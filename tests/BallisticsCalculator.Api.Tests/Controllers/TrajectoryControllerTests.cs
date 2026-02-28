@@ -272,4 +272,97 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
         // .308 at 500 yards is still supersonic
         pointAt500.IsTransonic.Should().BeFalse();
     }
+
+    // ========== Sprint 5: Compare endpoint tests ==========
+
+    [Fact]
+    public async Task Compare_TwoCartridges_ReturnsBothTrajectories()
+    {
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = new List<int> { 29, 21 }, // .308 Win and 6.5 Creedmoor
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<CompareResponseDto>();
+        result.Should().NotBeNull();
+        result!.Trajectories.Should().HaveCount(2);
+        result.Trajectories[0].CartridgeName.Should().Contain(".308");
+        result.Trajectories[1].CartridgeName.Should().Contain("6.5 Creedmoor");
+    }
+
+    [Fact]
+    public async Task Compare_InvalidCartridgeId_Returns404()
+    {
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = new List<int> { 29, 999 },
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Compare_TooFewCartridges_Returns400()
+    {
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = new List<int> { 29 },
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    // ========== Sprint 5: DOPE card tests ==========
+
+    [Fact]
+    public async Task DopeCard_ValidRequest_ReturnsCsv()
+    {
+        var request = new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "yards" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/dope-card", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("text/csv");
+
+        var csv = await response.Content.ReadAsStringAsync();
+        csv.Should().Contain("DOPE Card");
+        csv.Should().Contain("Range,Height,Velocity");
+    }
+
+    [Fact]
+    public async Task DopeCard_InvalidCartridge_Returns404()
+    {
+        var request = new TrajectoryRequestDto { CartridgeId = 999, UnitSystem = "yards" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/dope-card", request);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    // ========== Sprint 5: G7 Drag Model API tests ==========
+
+    [Fact]
+    public async Task Calculate_WithG7DragModel_ReturnsSuccess()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            DragModel = "G7"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result.Should().NotBeNull();
+        result!.DragModel.Should().Be("G7");
+        result.Points.Should().NotBeEmpty();
+    }
 }

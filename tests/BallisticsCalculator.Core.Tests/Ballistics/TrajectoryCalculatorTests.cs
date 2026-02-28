@@ -481,4 +481,36 @@ public class TrajectoryCalculatorTests
         // Angled shooting should have less drop (height closer to zero / less negative)
         dropAngled.Should().BeGreaterThan(dropLevel);
     }
+
+    // ========== Sprint 5: G7 Drag Model tests ==========
+
+    [Fact]
+    public void Calculate_WithG7Model_ProducesTrajectory()
+    {
+        var result = _calculator.Calculate(Create308Win168(), dragModel: DragModel.G7);
+        result.Points.Should().NotBeEmpty();
+        result.Points.Count.Should().BeGreaterThan(100);
+    }
+
+    [Fact]
+    public void Calculate_G7VsG1_ProduceDifferentTrajectories()
+    {
+        var resultG1 = _calculator.Calculate(Create308Win168(), dragModel: DragModel.G1);
+        var resultG7 = _calculator.Calculate(Create308Win168(), dragModel: DragModel.G7);
+
+        // G7 drag model gives different drop at 500 yards
+        var dropG1 = resultG1.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+        var dropG7 = resultG7.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+
+        // The values should be meaningfully different
+        Math.Abs(dropG1 - dropG7).Should().BeGreaterThan(1.0);
+    }
+
+    [Fact]
+    public void Calculate_G7Model_TransonicRangeDetected()
+    {
+        // G7 model has lower drag, so bullet retains velocity longer — need a larger max range
+        var result = _calculator.Calculate(Create308Win168(), maxRangeYards: 2000, dragModel: DragModel.G7);
+        result.TransonicRange.Should().BeGreaterThan(0);
+    }
 }

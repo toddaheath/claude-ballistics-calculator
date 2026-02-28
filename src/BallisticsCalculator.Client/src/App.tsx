@@ -16,6 +16,7 @@ import './App.css';
 
 const CartridgeReference = lazy(() => import('./pages/CartridgeReference'));
 const HowItWorks = lazy(() => import('./pages/HowItWorks'));
+const ComparePage = lazy(() => import('./pages/ComparePage'));
 
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
@@ -60,6 +61,7 @@ function Calculator() {
     sightHeightInches: 1.5,
     shotHeightInches: 30,
     shootingAngleDeg: 0,
+    dragModel: 'G1',
   });
   const abortControllerRef = useRef<AbortController | null>(null);
   const settingsRef = useRef(settings);
@@ -96,6 +98,7 @@ function Calculator() {
         pressureInHg: s.pressureInHg,
         humidityPercent: s.humidityPercent,
         shootingAngleDeg: s.shootingAngleDeg,
+        dragModel: s.dragModel,
       });
       if (!controller.signal.aborted) {
         setTrajectory(result);
@@ -167,7 +170,7 @@ function Calculator() {
             unitSystem={unitSystem}
             onMaxRangeChange={handleMaxRangeChange}
           />
-          <TrajectoryInfo data={trajectory} settings={settings} />
+          <TrajectoryInfo data={trajectory} settings={settings} cartridgeId={selectedId!} maxRange={maxRange} />
         </>
       )}
     </>
@@ -216,6 +219,9 @@ function AppLayout() {
             <NavLink to="/cartridges" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
               Cartridge Reference
             </NavLink>
+            <NavLink to="/compare" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
+              Compare
+            </NavLink>
             <NavLink to="/how-it-works" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
               How It Works
             </NavLink>
@@ -228,6 +234,7 @@ function AppLayout() {
             <Routes>
               <Route path="/" element={<ProtectedRoute><Calculator /></ProtectedRoute>} />
               <Route path="/cartridges" element={<CartridgeReference />} />
+              <Route path="/compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
