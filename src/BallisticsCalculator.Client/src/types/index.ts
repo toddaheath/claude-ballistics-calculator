@@ -116,3 +116,44 @@ export interface AuthResponse {
   email: string;
   userId: number;
 }
+
+export interface MpbrRequest {
+  cartridgeId: number;
+  vitalZoneRadiusInches?: number;
+  sightHeightInches?: number;
+  dragModel?: string;
+  unitSystem: UnitSystem;
+}
+
+export interface MpbrResponse {
+  mpbrRange: number;
+  optimalZeroRange: number;
+  vitalZoneRadiusInches: number;
+  nearZeroCrossing: number;
+  farZeroCrossing: number;
+  cartridgeName: string;
+  unitSystem: UnitSystem;
+  dragModel: string;
+}
+
+export interface CustomCartridgeRequest {
+  name: string;
+  bulletWeightGrains: number;
+  muzzleVelocityFps: number;
+  ballisticCoefficient: number;
+  bulletDiameterInches?: number;
+  bulletType?: string;
+  zeroRange?: number;
+  maxRange?: number;
+  unitSystem: UnitSystem;
+  shotHeightInches?: number;
+  sightHeightInches?: number;
+  windSpeedMph?: number;
+  windDirectionDeg?: number;
+  temperatureF?: number;
+  altitudeFt?: number;
+  pressureInHg?: number;
+  humidityPercent?: number;
+  shootingAngleDeg?: number;
+  dragModel?: string;
+}

@@ -178,6 +178,81 @@ public class TrajectoryController : ControllerBase
         return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "dope-card.csv");
     }
 
+    [HttpPost("mpbr")]
+    public async Task<ActionResult<MpbrResponseDto>> CalculateMpbr([FromBody] MpbrRequestDto request)
+    {
+        var cartridge = await _repository.GetByIdAsync(request.CartridgeId);
+        if (cartridge is null)
+            return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
+
+        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+        double sightHeight = request.SightHeightInches ?? BallisticConstants.DefaultSightHeightInches;
+        double vitalZone = request.VitalZoneRadiusInches ?? 3.0;
+        bool isMetric = request.UnitSystem?.ToLowerInvariant() == "meters";
+
+        var result = _calculator.CalculateMpbr(cartridge, vitalZone, sightHeight, dragModel: dragModel);
+
+        return Ok(new MpbrResponseDto
+        {
+            MpbrRange = isMetric ? UnitConverter.YardsToMeters(result.MpbrRange) : result.MpbrRange,
+            OptimalZeroRange = isMetric ? UnitConverter.YardsToMeters(result.OptimalZeroRange) : result.OptimalZeroRange,
+            VitalZoneRadiusInches = isMetric ? UnitConverter.InchesToCm(result.VitalZoneRadiusInches) : result.VitalZoneRadiusInches,
+            NearZeroCrossing = isMetric ? UnitConverter.YardsToMeters(result.NearZeroCrossing) : result.NearZeroCrossing,
+            FarZeroCrossing = isMetric ? UnitConverter.YardsToMeters(result.FarZeroCrossing) : result.FarZeroCrossing,
+            CartridgeName = cartridge.Name,
+            UnitSystem = isMetric ? "meters" : "yards",
+            DragModel = dragModel == DragModel.G7 ? "G7" : "G1"
+        });
+    }
+
+    [HttpPost("custom")]
+    public ActionResult<TrajectoryResponseDto> CalculateCustom([FromBody] CustomCartridgeRequestDto request)
+    {
+        var cartridge = new Cartridge
+        {
+            Id = 0,
+            Name = request.Name,
+            Category = "Custom",
+            BulletWeightGrains = request.BulletWeightGrains,
+            BulletWeightGrams = request.BulletWeightGrains * 0.0648, // grains to grams
+            BulletDiameterInches = request.BulletDiameterInches ?? 0.308,
+            MuzzleVelocityFps = request.MuzzleVelocityFps,
+            BallisticCoefficientG1 = request.BallisticCoefficient,
+            BulletType = request.BulletType ?? "Custom"
+        };
+
+        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+
+        double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
+        double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
+        double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
+
+        if (zeroRange >= maxRange)
+            return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
+
+        var result = _calculator.Calculate(
+            cartridge,
+            zeroRange,
+            maxRange,
+            shotHeight,
+            sightHeightInches: request.SightHeightInches ?? BallisticConstants.DefaultSightHeightInches,
+            windSpeedMph: request.WindSpeedMph ?? 0,
+            windDirectionDeg: request.WindDirectionDeg ?? 0,
+            temperatureF: request.TemperatureF ?? BallisticConstants.StandardTemperatureF,
+            altitudeFt: request.AltitudeFt ?? BallisticConstants.StandardAltitudeFt,
+            pressureInHg: request.PressureInHg ?? BallisticConstants.StandardPressureInHg,
+            humidityPercent: request.HumidityPercent ?? BallisticConstants.StandardHumidityPercent,
+            shootingAngleDeg: request.ShootingAngleDeg ?? 0,
+            dragModel: dragModel);
+
+        bool isMetric = request.UnitSystem?.ToLowerInvariant() == "meters";
+
+        var response = MapToResponseDto(result, isMetric, shotHeight);
+        response.DragModel = dragModel == DragModel.G7 ? "G7" : "G1";
+
+        return Ok(response);
+    }
+
     private static TrajectoryResponseDto MapToResponseDto(TrajectoryResult result, bool isMetric, double shotHeight)
     {
         return new TrajectoryResponseDto

@@ -323,6 +323,90 @@ public class TrajectoryCalculator
         return 0; // Never goes transonic within max range
     }
 
+    public MpbrResult CalculateMpbr(
+        Cartridge cartridge,
+        double vitalZoneRadiusInches = 3.0, // Default: 6" vital zone = 3" radius
+        double sightHeightInches = BallisticConstants.DefaultSightHeightInches,
+        double maxSearchRangeYards = 500,
+        DragModel dragModel = DragModel.G1)
+    {
+        // Binary search for the optimal zero range that maximizes point-blank range.
+        // For a given zero range, the trajectory goes up to a peak then falls.
+        // MPBR is the furthest range where the trajectory stays within ±vitalZoneRadius of LOS.
+        //
+        // Algorithm:
+        // 1. Search zero range from 10 to maxSearchRangeYards
+        // 2. For each candidate zero range, calculate trajectory
+        // 3. Find the max range where bullet height stays within ±vitalZoneRadius
+        // 4. The zero range that maximizes this range is the MPBR zero
+
+        double bestZero = 50;
+        double bestMpbr = 0;
+        double bestNearZero = 0;
+        double bestFarZero = 0;
+
+        // Coarse search first (step 10), then fine search (step 1)
+        for (int pass = 0; pass < 2; pass++)
+        {
+            double step = pass == 0 ? 10.0 : 1.0;
+            double searchLow = pass == 0 ? 10.0 : Math.Max(10, bestZero - 15);
+            double searchHigh = pass == 0 ? maxSearchRangeYards : Math.Min(maxSearchRangeYards, bestZero + 15);
+
+            for (double zeroCandidate = searchLow; zeroCandidate <= searchHigh; zeroCandidate += step)
+            {
+                var result = Calculate(cartridge, zeroRangeYards: zeroCandidate,
+                    maxRangeYards: maxSearchRangeYards, sightHeightInches: sightHeightInches,
+                    dragModel: dragModel);
+
+                double mpbrRange = 0;
+                double peakHeight = 0;
+                double nearZero = 0;
+                double farZero = 0;
+                bool foundNearZero = false;
+
+                foreach (var point in result.Points)
+                {
+                    if (point.Height > peakHeight)
+                        peakHeight = point.Height;
+
+                    // Track near-zero crossing (first time height goes positive)
+                    if (!foundNearZero && point.Height >= 0 && point.Range > 0)
+                    {
+                        nearZero = point.Range;
+                        foundNearZero = true;
+                    }
+
+                    // Track far-zero crossing (last time height crosses zero going negative)
+                    if (point.Range > zeroCandidate * 0.5 && point.Height >= 0)
+                        farZero = point.Range;
+
+                    if (Math.Abs(point.Height) <= vitalZoneRadiusInches)
+                        mpbrRange = point.Range;
+                    else if (point.Range > zeroCandidate && point.Height < -vitalZoneRadiusInches)
+                        break; // Past MPBR
+                }
+
+                // Only consider this zero if peak height doesn't exceed vital zone
+                if (peakHeight <= vitalZoneRadiusInches && mpbrRange > bestMpbr)
+                {
+                    bestMpbr = mpbrRange;
+                    bestZero = zeroCandidate;
+                    bestNearZero = nearZero;
+                    bestFarZero = farZero;
+                }
+            }
+        }
+
+        return new MpbrResult
+        {
+            MpbrRange = bestMpbr,
+            OptimalZeroRange = bestZero,
+            VitalZoneRadiusInches = vitalZoneRadiusInches,
+            NearZeroCrossing = bestNearZero,
+            FarZeroCrossing = bestFarZero
+        };
+    }
+
     // Points are recorded at 1-yard intervals starting at 0, so index == yard mark
     private static double GetHeightAtYardMark(List<TrajectoryPoint> points, double rangeYards)
     {

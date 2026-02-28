@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import type { TrajectoryResponse, EnvironmentSettings } from '../types';
-import { downloadDopeCard } from '../services/api';
+import { useState, useEffect } from 'react';
+import type { TrajectoryResponse, EnvironmentSettings, MpbrResponse } from '../types';
+import { downloadDopeCard, calculateMpbr } from '../services/api';
 
 interface Props {
   data: TrajectoryResponse;
@@ -11,6 +11,30 @@ interface Props {
 
 export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
   const [downloading, setDownloading] = useState(false);
+  const [mpbr, setMpbr] = useState<MpbrResponse | null>(null);
+  const [mpbrLoading, setMpbrLoading] = useState(false);
+
+  useEffect(() => {
+    setMpbr(null);
+  }, [cartridgeId]);
+
+  const handleCalculateMpbr = async () => {
+    setMpbrLoading(true);
+    try {
+      const result = await calculateMpbr({
+        cartridgeId,
+        vitalZoneRadiusInches: 3.0,
+        sightHeightInches: settings.sightHeightInches,
+        dragModel: settings.dragModel,
+        unitSystem: data.unitSystem,
+      });
+      setMpbr(result);
+    } catch {
+      // Silently fail
+    } finally {
+      setMpbrLoading(false);
+    }
+  };
 
   const handleDownloadDope = async () => {
     setDownloading(true);
@@ -132,6 +156,44 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
         </tbody>
       </table>
 
+      <div className="mpbr-section">
+        <h3 style={{ marginTop: 24 }}>Maximum Point-Blank Range</h3>
+        {!mpbr ? (
+          <button
+            className="mpbr-calc-btn"
+            onClick={handleCalculateMpbr}
+            disabled={mpbrLoading}
+          >
+            {mpbrLoading ? 'Calculating...' : 'Calculate MPBR (6" vital zone)'}
+          </button>
+        ) : (
+          <table>
+            <tbody>
+              <tr>
+                <td>MPBR</td>
+                <td>{mpbr.mpbrRange.toFixed(0)} {rangeUnit}</td>
+              </tr>
+              <tr>
+                <td>Optimal Zero</td>
+                <td>{mpbr.optimalZeroRange.toFixed(0)} {rangeUnit}</td>
+              </tr>
+              <tr>
+                <td>Vital Zone</td>
+                <td>&plusmn;{mpbr.vitalZoneRadiusInches.toFixed(1)} {heightUnit}</td>
+              </tr>
+              <tr>
+                <td>Near Zero</td>
+                <td>{mpbr.nearZeroCrossing.toFixed(0)} {rangeUnit}</td>
+              </tr>
+              <tr>
+                <td>Far Zero</td>
+                <td>{mpbr.farZeroCrossing.toFixed(0)} {rangeUnit}</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+      </div>
+
       {dropTablePoints.length > 0 && (
         <>
           <h3 style={{ marginTop: 24 }}>Drop Table</h3>
@@ -162,13 +224,15 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
         </>
       )}
 
-      <button
-        className="dope-download-btn"
-        onClick={handleDownloadDope}
-        disabled={downloading}
-      >
-        {downloading ? 'Downloading...' : 'Download DOPE Card'}
-      </button>
+      {cartridgeId !== 0 && (
+        <button
+          className="dope-download-btn"
+          onClick={handleDownloadDope}
+          disabled={downloading}
+        >
+          {downloading ? 'Downloading...' : 'Download DOPE Card'}
+        </button>
+      )}
     </div>
   );
 }

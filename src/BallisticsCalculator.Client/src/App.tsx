@@ -17,6 +17,7 @@ import './App.css';
 const CartridgeReference = lazy(() => import('./pages/CartridgeReference'));
 const HowItWorks = lazy(() => import('./pages/HowItWorks'));
 const ComparePage = lazy(() => import('./pages/ComparePage'));
+const CustomCartridgePage = lazy(() => import('./pages/CustomCartridgePage'));
 
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
@@ -222,6 +223,9 @@ function AppLayout() {
             <NavLink to="/compare" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
               Compare
             </NavLink>
+            <NavLink to="/custom" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
+              Custom Load
+            </NavLink>
             <NavLink to="/how-it-works" className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
               How It Works
             </NavLink>
@@ -235,6 +239,7 @@ function AppLayout() {
               <Route path="/" element={<ProtectedRoute><Calculator /></ProtectedRoute>} />
               <Route path="/cartridges" element={<CartridgeReference />} />
               <Route path="/compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
+              <Route path="/custom" element={<ProtectedRoute><CustomCartridgePage /></ProtectedRoute>} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />

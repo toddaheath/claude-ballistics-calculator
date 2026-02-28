@@ -365,4 +365,72 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
         result!.DragModel.Should().Be("G7");
         result.Points.Should().NotBeEmpty();
     }
+
+    // ========== Sprint 6: MPBR endpoint tests ==========
+
+    [Fact]
+    public async Task Mpbr_ValidRequest_ReturnsMpbrData()
+    {
+        var request = new MpbrRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/mpbr", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<MpbrResponseDto>();
+        result.Should().NotBeNull();
+        result!.MpbrRange.Should().BeGreaterThan(0);
+        result.OptimalZeroRange.Should().BeGreaterThan(0);
+        result.CartridgeName.Should().Contain(".308");
+    }
+
+    [Fact]
+    public async Task Mpbr_InvalidCartridge_Returns404()
+    {
+        var request = new MpbrRequestDto { CartridgeId = 999, UnitSystem = "yards" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/mpbr", request);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    // ========== Sprint 6: Custom cartridge tests ==========
+
+    [Fact]
+    public async Task Custom_ValidRequest_ReturnsTrajectory()
+    {
+        var request = new CustomCartridgeRequestDto
+        {
+            Name = "Test Custom Load",
+            BulletWeightGrains = 175,
+            MuzzleVelocityFps = 2600,
+            BallisticCoefficient = 0.505,
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/custom", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result.Should().NotBeNull();
+        result!.CartridgeName.Should().Be("Test Custom Load");
+        result.Points.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task Custom_InvalidWeight_Returns400()
+    {
+        var request = new CustomCartridgeRequestDto
+        {
+            Name = "Bad Load",
+            BulletWeightGrains = 0, // Invalid
+            MuzzleVelocityFps = 2600,
+            BallisticCoefficient = 0.505
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/custom", request);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }

@@ -513,4 +513,47 @@ public class TrajectoryCalculatorTests
         var result = _calculator.Calculate(Create308Win168(), maxRangeYards: 2000, dragModel: DragModel.G7);
         result.TransonicRange.Should().BeGreaterThan(0);
     }
+
+    // ========== Sprint 6: MPBR tests ==========
+
+    [Fact]
+    public void CalculateMpbr_308Win_FindsReasonableMpbr()
+    {
+        var result = _calculator.CalculateMpbr(Create308Win168());
+
+        // .308 Win with 3" vital zone should have MPBR around 200-300 yards
+        result.MpbrRange.Should().BeInRange(150, 350);
+        result.OptimalZeroRange.Should().BeGreaterThan(100);
+        result.VitalZoneRadiusInches.Should().Be(3.0);
+    }
+
+    [Fact]
+    public void CalculateMpbr_9mm_ShorterRange()
+    {
+        var result = _calculator.CalculateMpbr(Create9mm115());
+
+        // 9mm handgun has much shorter MPBR
+        result.MpbrRange.Should().BeLessThan(200);
+        result.MpbrRange.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void CalculateMpbr_LargerVitalZone_LongerRange()
+    {
+        var resultSmall = _calculator.CalculateMpbr(Create308Win168(), vitalZoneRadiusInches: 2.0);
+        var resultLarge = _calculator.CalculateMpbr(Create308Win168(), vitalZoneRadiusInches: 5.0);
+
+        // Larger vital zone = longer MPBR
+        resultLarge.MpbrRange.Should().BeGreaterThan(resultSmall.MpbrRange);
+    }
+
+    [Fact]
+    public void CalculateMpbr_65Creedmoor_LongerThan308()
+    {
+        var result308 = _calculator.CalculateMpbr(Create308Win168());
+        var result65 = _calculator.CalculateMpbr(Create65Creedmoor140());
+
+        // 6.5 Creedmoor has flatter trajectory = longer MPBR
+        result65.MpbrRange.Should().BeGreaterThanOrEqualTo(result308.MpbrRange);
+    }
 }
