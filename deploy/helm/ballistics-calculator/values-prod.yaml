@@ -28,6 +28,13 @@ postgresql:
     size: 5Gi
   service:
     port: 5432
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
 
 ingress:
   enabled: true
