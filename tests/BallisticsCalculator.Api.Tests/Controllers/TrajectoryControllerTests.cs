@@ -183,4 +183,93 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
         var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
         result!.CartridgeName.Should().Contain(".50 BMG");
     }
+
+    // ========== Sprint 4: New API tests ==========
+
+    [Fact]
+    public async Task Calculate_WithWindParameters_ReturnsWindDrift()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            WindSpeedMph = 10,
+            WindDirectionDeg = 90 // Right crosswind
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result.Should().NotBeNull();
+
+        // Points at longer ranges should have non-zero wind drift
+        var pointAt300 = result!.Points.First(p => Math.Abs(p.Range - 300) < 1);
+        pointAt300.WindDriftInches.Should().NotBe(0);
+        pointAt300.WindDriftMoa.Should().NotBe(0);
+        pointAt300.WindDriftMils.Should().NotBe(0);
+    }
+
+    [Fact]
+    public async Task Calculate_WithAtmospherics_ReturnsSuccess()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            TemperatureF = 90,
+            AltitudeFt = 5000,
+            PressureInHg = 24.90,
+            HumidityPercent = 50
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result.Should().NotBeNull();
+        result!.Points.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task Calculate_ResponseIncludesTransonicRange()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            MaxRange = 1200
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+
+        result.Should().NotBeNull();
+        // .308 Win should go transonic within 1200 yards
+        result!.TransonicRange.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task Calculate_ResponseIncludesMoaAndMils()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+
+        result.Should().NotBeNull();
+
+        // At 500 yards, there should be significant drop, so MOA/mils should be non-zero
+        var pointAt500 = result!.Points.First(p => Math.Abs(p.Range - 500) < 1);
+        pointAt500.DropMoa.Should().NotBe(0);
+        pointAt500.DropMils.Should().NotBe(0);
+
+        // The IsTransonic field should be present (false for .308 at 500 yards)
+        // .308 at 500 yards is still supersonic
+        pointAt500.IsTransonic.Should().BeFalse();
+    }
 }

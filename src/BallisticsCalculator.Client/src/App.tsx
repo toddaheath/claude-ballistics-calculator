@@ -3,6 +3,7 @@ import type { ReactNode, ErrorInfo } from 'react';
 import { HashRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import CartridgeSelector from './components/CartridgeSelector';
 import UnitToggle from './components/UnitToggle';
+import EnvironmentPanel from './components/EnvironmentPanel';
 import TrajectoryChart from './components/TrajectoryChart';
 import TrajectoryInfo from './components/TrajectoryInfo';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -10,7 +11,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getCartridges, calculateTrajectory } from './services/api';
-import type { Cartridge, TrajectoryResponse, UnitSystem } from './types';
+import type { Cartridge, EnvironmentSettings, TrajectoryResponse, UnitSystem } from './types';
 import './App.css';
 
 const CartridgeReference = lazy(() => import('./pages/CartridgeReference'));
@@ -48,7 +49,21 @@ function Calculator() {
   const [trajectory, setTrajectory] = useState<TrajectoryResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [settings, setSettings] = useState<EnvironmentSettings>({
+    windSpeedMph: 0,
+    windDirectionDeg: 90,
+    temperatureF: 59,
+    altitudeFt: 0,
+    pressureInHg: 29.92,
+    humidityPercent: 0,
+    zeroRange: 100,
+    sightHeightInches: 1.5,
+    shotHeightInches: 30,
+    shootingAngleDeg: 0,
+  });
   const abortControllerRef = useRef<AbortController | null>(null);
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -66,10 +81,21 @@ function Calculator() {
     setLoading(true);
     setError(null);
     try {
+      const s = settingsRef.current;
       const result = await calculateTrajectory({
         cartridgeId,
         unitSystem: unit,
         maxRange: range,
+        zeroRange: s.zeroRange,
+        shotHeightInches: s.shotHeightInches,
+        sightHeightInches: s.sightHeightInches,
+        windSpeedMph: s.windSpeedMph,
+        windDirectionDeg: s.windDirectionDeg,
+        temperatureF: s.temperatureF,
+        altitudeFt: s.altitudeFt,
+        pressureInHg: s.pressureInHg,
+        humidityPercent: s.humidityPercent,
+        shootingAngleDeg: s.shootingAngleDeg,
       });
       if (!controller.signal.aborted) {
         setTrajectory(result);
@@ -104,11 +130,19 @@ function Calculator() {
     }
   }, [fetchTrajectory, selectedId, unitSystem]);
 
+  const handleSettingsChange = useCallback((newSettings: EnvironmentSettings) => {
+    setSettings(newSettings);
+    settingsRef.current = newSettings;
+    if (selectedId) {
+      fetchTrajectory(selectedId, unitSystem, maxRange);
+    }
+  }, [fetchTrajectory, selectedId, unitSystem, maxRange]);
+
   return (
     <>
       <div className="page-header">
         <h2>Trajectory Calculator</h2>
-        <p>Select a cartridge to view its trajectory. Shot from 30" (picnic table height), zeroed at 100 yards.</p>
+        <p>Select a cartridge to view its trajectory. Shot from {settings.shotHeightInches}&quot; height, zeroed at {settings.zeroRange} yards.</p>
       </div>
 
       <div className="controls">
@@ -119,6 +153,8 @@ function Calculator() {
         />
         <UnitToggle unitSystem={unitSystem} onChange={handleUnitChange} />
       </div>
+
+      <EnvironmentPanel settings={settings} onChange={handleSettingsChange} />
 
       {error && <div className="error" role="alert">{error}</div>}
       {loading && <div className="loading" role="status" aria-live="polite">Calculating trajectory...</div>}
@@ -131,7 +167,7 @@ function Calculator() {
             unitSystem={unitSystem}
             onMaxRangeChange={handleMaxRangeChange}
           />
-          <TrajectoryInfo data={trajectory} />
+          <TrajectoryInfo data={trajectory} settings={settings} />
         </>
       )}
     </>

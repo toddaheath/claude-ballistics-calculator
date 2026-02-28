@@ -267,7 +267,7 @@ public class TrajectoryCalculatorTests
         var result = _calculator.Calculate(Create308Win168());
         var point = result.Points[0];
 
-        // Energy = v² * weight / 450240
+        // Energy = v^2 * weight / 450240
         double expectedEnergy = point.Velocity * point.Velocity * 168.0 / 450240.0;
         point.Energy.Should().BeApproximately(expectedEnergy, 5);
     }
@@ -323,5 +323,162 @@ public class TrajectoryCalculatorTests
 
         var act = () => _calculator.Calculate(cartridge);
         act.Should().Throw<ArgumentException>().WithMessage("*BulletWeightGrains*");
+    }
+
+    // ========== Sprint 4: Wind drift tests ==========
+
+    [Fact]
+    public void Calculate_WithWind_ProducesWindDrift()
+    {
+        // 10 mph crosswind from the right (90 degrees)
+        var result = _calculator.Calculate(Create308Win168(),
+            windSpeedMph: 10, windDirectionDeg: 90);
+
+        // At 300 yards, there should be non-zero wind drift
+        var pointAt300 = result.Points.First(p => Math.Abs(p.Range - 300) < 1);
+        pointAt300.WindDriftInches.Should().NotBe(0);
+        // Right crosswind should produce positive drift (convention: right = positive)
+        pointAt300.WindDriftInches.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void Calculate_NoWind_ZeroWindDrift()
+    {
+        var result = _calculator.Calculate(Create308Win168(),
+            windSpeedMph: 0, windDirectionDeg: 0);
+
+        // All points should have zero wind drift
+        foreach (var point in result.Points)
+        {
+            point.WindDriftInches.Should().Be(0);
+        }
+    }
+
+    // ========== Sprint 4: Atmospheric condition tests ==========
+
+    [Fact]
+    public void Calculate_HighAltitude_LessDrop()
+    {
+        // At 5000 ft altitude, air is less dense -> less drag -> flatter trajectory
+        var resultSeaLevel = _calculator.Calculate(Create308Win168(),
+            altitudeFt: 0, pressureInHg: 29.92);
+        var resultHighAlt = _calculator.Calculate(Create308Win168(),
+            altitudeFt: 0, pressureInHg: 24.90); // ~5000ft pressure
+
+        var dropSeaLevel = resultSeaLevel.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+        var dropHighAlt = resultHighAlt.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+
+        // Less dense air means less drag, so less drop (height closer to zero)
+        dropHighAlt.Should().BeGreaterThan(dropSeaLevel);
+    }
+
+    [Fact]
+    public void Calculate_HotTemperature_LessDrop()
+    {
+        // Hot day (100F) -> less dense air -> less drag -> flatter trajectory
+        var resultStandard = _calculator.Calculate(Create308Win168(),
+            temperatureF: 59.0);
+        var resultHot = _calculator.Calculate(Create308Win168(),
+            temperatureF: 100.0);
+
+        var dropStd = resultStandard.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+        var dropHot = resultHot.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+
+        // Hot air is less dense -> less drag -> less drop
+        dropHot.Should().BeGreaterThan(dropStd);
+    }
+
+    [Fact]
+    public void Calculate_ColdTemperature_MoreDrop()
+    {
+        // Cold day (20F) -> denser air -> more drag -> more drop
+        var resultStandard = _calculator.Calculate(Create308Win168(),
+            temperatureF: 59.0);
+        var resultCold = _calculator.Calculate(Create308Win168(),
+            temperatureF: 20.0);
+
+        var dropStd = resultStandard.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+        var dropCold = resultCold.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+
+        // Cold air is denser -> more drag -> more drop (more negative)
+        dropCold.Should().BeLessThan(dropStd);
+    }
+
+    // ========== Sprint 4: MOA/Mil tests ==========
+
+    [Fact]
+    public void Calculate_MOA_CalculatedCorrectly()
+    {
+        var result = _calculator.Calculate(Create308Win168());
+
+        // At 100 yards, the bullet is zeroed so height ~0, MOA ~0
+        var pointAt100 = result.Points.First(p => Math.Abs(p.Range - 100) < 1);
+        pointAt100.DropMoa.Should().BeApproximately(0, 0.5);
+
+        // At longer ranges where there's significant drop, MOA should be non-zero
+        var pointAt500 = result.Points.First(p => Math.Abs(p.Range - 500) < 1);
+        pointAt500.DropMoa.Should().NotBe(0);
+
+        // Verify the formula: MOA = (height_inches / range_yards) * (100 / 1.047)
+        double expectedMoa = (pointAt500.Height / 500.0) * (100.0 / 1.047);
+        pointAt500.DropMoa.Should().BeApproximately(expectedMoa, 0.01);
+    }
+
+    [Fact]
+    public void Calculate_Mils_CalculatedCorrectly()
+    {
+        var result = _calculator.Calculate(Create308Win168());
+
+        // At 500 yards, verify mil calculation
+        var pointAt500 = result.Points.First(p => Math.Abs(p.Range - 500) < 1);
+        pointAt500.DropMils.Should().NotBe(0);
+
+        // Verify the formula: Mils = (height_inches / range_yards) * (100 / 3.6)
+        double expectedMils = (pointAt500.Height / 500.0) * (100.0 / 3.6);
+        pointAt500.DropMils.Should().BeApproximately(expectedMils, 0.01);
+    }
+
+    // ========== Sprint 4: Transonic detection tests ==========
+
+    [Fact]
+    public void Calculate_TransonicRange_DetectedFor308()
+    {
+        // .308 Win starts at ~2680 fps (Mach 2.4) and should go transonic (Mach < 1.2)
+        // around 850-1000 yards
+        var result = _calculator.Calculate(Create308Win168(), maxRangeYards: 1200);
+
+        result.TransonicRange.Should().BeGreaterThan(0);
+        result.TransonicRange.Should().BeInRange(700, 1100);
+    }
+
+    [Fact]
+    public void Calculate_TransonicRange_NotDetectedForShortRange()
+    {
+        // 9mm at 1180 fps is Mach ~1.06, already below Mach 1.2 at the muzzle
+        // So TransonicRange should be 0 (starts transonic)
+        var result = _calculator.Calculate(Create9mm115(), maxRangeYards: 200);
+
+        result.TransonicRange.Should().Be(0);
+        // First point should already be flagged as transonic
+        result.Points[0].IsTransonic.Should().BeTrue();
+    }
+
+    // ========== Sprint 4: Shooting angle test ==========
+
+    [Fact]
+    public void Calculate_ShootingAngle_ReducesDrop()
+    {
+        // Shooting at 30 degrees uphill should produce less drop than level shooting
+        // because effective gravity component is reduced by cos(30) = 0.866
+        var resultLevel = _calculator.Calculate(Create308Win168(),
+            shootingAngleDeg: 0);
+        var resultAngled = _calculator.Calculate(Create308Win168(),
+            shootingAngleDeg: 30);
+
+        var dropLevel = resultLevel.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+        var dropAngled = resultAngled.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+
+        // Angled shooting should have less drop (height closer to zero / less negative)
+        dropAngled.Should().BeGreaterThan(dropLevel);
     }
 }

@@ -18,6 +18,12 @@ export interface TrajectoryPoint {
   timeOfFlight: number;
   mach: number;
   drop: number;
+  windDriftInches: number;
+  dropMoa: number;
+  dropMils: number;
+  windDriftMoa: number;
+  windDriftMils: number;
+  isTransonic: boolean;
 }
 
 export interface TrajectoryRequest {
@@ -26,6 +32,14 @@ export interface TrajectoryRequest {
   maxRange?: number;
   unitSystem: UnitSystem;
   shotHeightInches?: number;
+  sightHeightInches?: number;
+  windSpeedMph?: number;
+  windDirectionDeg?: number;
+  temperatureF?: number;
+  altitudeFt?: number;
+  pressureInHg?: number;
+  humidityPercent?: number;
+  shootingAngleDeg?: number;
 }
 
 export interface TrajectoryResponse {
@@ -39,6 +53,20 @@ export interface TrajectoryResponse {
   secondCrossingRange: number;
   shotHeight: number;
   unitSystem: UnitSystem;
+  transonicRange: number;
+}
+
+export interface EnvironmentSettings {
+  windSpeedMph: number;
+  windDirectionDeg: number;
+  temperatureF: number;
+  altitudeFt: number;
+  pressureInHg: number;
+  humidityPercent: number;
+  zeroRange: number;
+  sightHeightInches: number;
+  shotHeightInches: number;
+  shootingAngleDeg: number;
 }
 
 export interface AuthUser {

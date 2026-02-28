@@ -1,6 +1,6 @@
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ReferenceLine, ReferenceDot, Legend, ResponsiveContainer, Label
+  ReferenceLine, ReferenceDot, ReferenceArea, Legend, ResponsiveContainer, Label
 } from 'recharts';
 import type { TrajectoryResponse, UnitSystem } from '../types';
 
@@ -25,6 +25,9 @@ export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRange
   const chartData = data.points.filter((_, i) => i % 5 === 0 || i === data.points.length - 1);
 
   const crossingRange = data.secondCrossingRange;
+  const hasWindDrift = data.points.some((p) => p.windDriftInches !== 0);
+  const transonicRange = data.transonicRange ?? 0;
+  const maxDataRange = data.points.length > 0 ? data.points[data.points.length - 1].range : 0;
 
   return (
     <div className="trajectory-chart">
@@ -76,6 +79,7 @@ export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRange
                 height: `${v.toFixed(2)} ${isMetric ? 'cm' : 'in'}`,
                 velocity: `${v.toFixed(0)} ${isMetric ? 'm/s' : 'fps'}`,
                 energy: `${v.toFixed(0)} ${isMetric ? 'J' : 'ft-lbs'}`,
+                'wind drift': `${v.toFixed(2)} ${isMetric ? 'cm' : 'in'} drift`,
               };
               return labels[String(name)] ?? v.toFixed(2);
             }}
@@ -162,6 +166,30 @@ export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRange
               fill="#e67e22"
               stroke="#fff"
               strokeWidth={2}
+            />
+          )}
+
+          {/* Transonic warning zone */}
+          {transonicRange > 0 && (
+            <ReferenceArea
+              x1={transonicRange}
+              x2={maxDataRange}
+              fill="#e74c3c"
+              fillOpacity={0.08}
+              label={{ value: 'Transonic Zone', position: 'insideTopRight', fill: '#c0392b', fontSize: 11 }}
+            />
+          )}
+
+          {/* Wind drift line */}
+          {hasWindDrift && (
+            <Line
+              type="monotone"
+              dataKey="windDriftInches"
+              stroke="#e74c3c"
+              strokeWidth={1.5}
+              strokeDasharray="5 3"
+              dot={false}
+              name="wind drift"
             />
           )}
         </LineChart>
