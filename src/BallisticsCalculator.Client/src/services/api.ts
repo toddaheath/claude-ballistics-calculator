@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AuthResponse, Cartridge, CompareRequest, CompareResponse, LoginRequest, RegisterRequest, TrajectoryRequest, TrajectoryResponse } from '../types';
+import type { AuthResponse, Cartridge, CompareRequest, CompareResponse, CustomCartridgeRequest, LoginRequest, MpbrRequest, MpbrResponse, RegisterRequest, TrajectoryRequest, TrajectoryResponse } from '../types';
 import { mockCartridges, mockTrajectoryData } from './mockData';
 
 const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
@@ -83,5 +83,31 @@ export async function downloadDopeCard(request: TrajectoryRequest): Promise<Blob
   const response = await client.post('/trajectory/dope-card', request, {
     responseType: 'blob',
   });
+  return response.data;
+}
+
+export async function calculateMpbr(request: MpbrRequest): Promise<MpbrResponse> {
+  if (isDemoMode) {
+    return {
+      mpbrRange: 268,
+      optimalZeroRange: 228,
+      vitalZoneRadiusInches: 3.0,
+      nearZeroCrossing: 25,
+      farZeroCrossing: 228,
+      cartridgeName: '.308 Win 168gr BTHP Match',
+      unitSystem: request.unitSystem,
+      dragModel: 'G1',
+    };
+  }
+  const response = await client.post<MpbrResponse>('/trajectory/mpbr', request);
+  return response.data;
+}
+
+export async function calculateCustomTrajectory(request: CustomCartridgeRequest): Promise<TrajectoryResponse> {
+  if (isDemoMode) {
+    const unit = request.unitSystem === 'meters' ? 'meters' : 'yards';
+    return { ...mockTrajectoryData[unit], cartridgeName: request.name };
+  }
+  const response = await client.post<TrajectoryResponse>('/trajectory/custom', request);
   return response.data;
 }
