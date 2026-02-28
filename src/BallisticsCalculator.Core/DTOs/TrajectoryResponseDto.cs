@@ -13,6 +13,7 @@ public class TrajectoryResponseDto
     public double ShotHeight { get; set; }
     public string UnitSystem { get; set; } = "yards";
     public double TransonicRange { get; set; }
+    public string DragModel { get; set; } = "G1";
 }
 
 public class TrajectoryPointDto

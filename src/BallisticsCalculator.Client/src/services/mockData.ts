@@ -106,6 +106,7 @@ export const mockTrajectoryData: Record<string, TrajectoryResponse> = {
     shotHeight: 30,
     unitSystem: 'yards',
     transonicRange: 0,
+    dragModel: 'G1',
     points: [
       { range: 0, height: -1.5, velocity: 2680, energy: 2678, timeOfFlight: 0, mach: 2.39, drop: 0, windDriftInches: 0, dropMoa: 0, dropMils: 0, windDriftMoa: 0, windDriftMils: 0, isTransonic: false },
       { range: 25, height: -0.12, velocity: 2627, energy: 2573, timeOfFlight: 0.029, mach: 2.34, drop: -0.34, windDriftInches: 0, dropMoa: 0, dropMils: 0, windDriftMoa: 0, windDriftMils: 0, isTransonic: false },
@@ -141,6 +142,7 @@ export const mockTrajectoryData: Record<string, TrajectoryResponse> = {
     shotHeight: 30,
     unitSystem: 'meters',
     transonicRange: 0,
+    dragModel: 'G1',
     points: [
       { range: 0, height: -3.81, velocity: 817, energy: 3632, timeOfFlight: 0, mach: 2.39, drop: 0, windDriftInches: 0, dropMoa: 0, dropMils: 0, windDriftMoa: 0, windDriftMils: 0, isTransonic: false },
       { range: 22.9, height: -0.30, velocity: 801, energy: 3490, timeOfFlight: 0.029, mach: 2.34, drop: -0.86, windDriftInches: 0, dropMoa: 0, dropMils: 0, windDriftMoa: 0, windDriftMils: 0, isTransonic: false },

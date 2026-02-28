@@ -41,4 +41,6 @@ public class TrajectoryRequestDto
 
     [Range(-90, 90, ErrorMessage = "ShootingAngleDeg must be between -90 and 90.")]
     public double? ShootingAngleDeg { get; set; }
+
+    public string? DragModel { get; set; } // "G1" or "G7", defaults to "G1"
 }

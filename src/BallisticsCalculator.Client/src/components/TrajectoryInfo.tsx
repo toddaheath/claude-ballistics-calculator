@@ -1,11 +1,49 @@
+import { useState } from 'react';
 import type { TrajectoryResponse, EnvironmentSettings } from '../types';
+import { downloadDopeCard } from '../services/api';
 
 interface Props {
   data: TrajectoryResponse;
   settings: EnvironmentSettings;
+  cartridgeId: number;
+  maxRange: number;
 }
 
-export default function TrajectoryInfo({ data, settings }: Props) {
+export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadDope = async () => {
+    setDownloading(true);
+    try {
+      const blob = await downloadDopeCard({
+        cartridgeId,
+        unitSystem: data.unitSystem,
+        maxRange,
+        zeroRange: settings.zeroRange,
+        shotHeightInches: settings.shotHeightInches,
+        sightHeightInches: settings.sightHeightInches,
+        windSpeedMph: settings.windSpeedMph,
+        windDirectionDeg: settings.windDirectionDeg,
+        temperatureF: settings.temperatureF,
+        altitudeFt: settings.altitudeFt,
+        pressureInHg: settings.pressureInHg,
+        humidityPercent: settings.humidityPercent,
+        shootingAngleDeg: settings.shootingAngleDeg,
+        dragModel: settings.dragModel,
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dope-card-${data.cartridgeName.replace(/[^a-zA-Z0-9]/g, '-')}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // Silently fail — user can retry
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const isMetric = data.unitSystem === 'meters';
   const rangeUnit = isMetric ? 'm' : 'yd';
   const heightUnit = isMetric ? 'cm' : 'in';
@@ -123,6 +161,14 @@ export default function TrajectoryInfo({ data, settings }: Props) {
           </div>
         </>
       )}
+
+      <button
+        className="dope-download-btn"
+        onClick={handleDownloadDope}
+        disabled={downloading}
+      >
+        {downloading ? 'Downloading...' : 'Download DOPE Card'}
+      </button>
     </div>
   );
 }
