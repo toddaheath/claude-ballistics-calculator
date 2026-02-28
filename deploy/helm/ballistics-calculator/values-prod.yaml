@@ -41,3 +41,4 @@ ingress:
   className: nginx
   host: ballistics-calc-api.heathrobotics.io
   certSecret: ballistics-calc-api-prod-tls
+  corsAllowOrigin: "https://ballistics-calc.heathrobotics.io"
