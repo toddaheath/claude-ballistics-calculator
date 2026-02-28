@@ -11,4 +11,5 @@ public class TrajectoryResult
     public double HeightAt50 { get; set; }
     public double SecondCrossingRange { get; set; }
     public double ShotHeightInches { get; set; }
+    public double TransonicRange { get; set; }
 }

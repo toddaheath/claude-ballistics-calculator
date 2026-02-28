@@ -36,7 +36,19 @@ public class TrajectoryController : ControllerBase
         if (zeroRange >= maxRange)
             return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
 
-        var result = _calculator.Calculate(cartridge, zeroRange, maxRange, shotHeight);
+        var result = _calculator.Calculate(
+            cartridge,
+            zeroRange,
+            maxRange,
+            shotHeight,
+            sightHeightInches: request.SightHeightInches ?? BallisticConstants.DefaultSightHeightInches,
+            windSpeedMph: request.WindSpeedMph ?? 0,
+            windDirectionDeg: request.WindDirectionDeg ?? 0,
+            temperatureF: request.TemperatureF ?? BallisticConstants.StandardTemperatureF,
+            altitudeFt: request.AltitudeFt ?? BallisticConstants.StandardAltitudeFt,
+            pressureInHg: request.PressureInHg ?? BallisticConstants.StandardPressureInHg,
+            humidityPercent: request.HumidityPercent ?? BallisticConstants.StandardHumidityPercent,
+            shootingAngleDeg: request.ShootingAngleDeg ?? 0);
 
         bool isMetric = request.UnitSystem?.ToLowerInvariant() == "meters";
 
@@ -51,6 +63,7 @@ public class TrajectoryController : ControllerBase
             SecondCrossingRange = isMetric ? UnitConverter.YardsToMeters(result.SecondCrossingRange) : result.SecondCrossingRange,
             ShotHeight = isMetric ? UnitConverter.InchesToCm(shotHeight) : shotHeight,
             UnitSystem = isMetric ? "meters" : "yards",
+            TransonicRange = isMetric ? UnitConverter.YardsToMeters(result.TransonicRange) : result.TransonicRange,
             Points = result.Points.Select(p => new TrajectoryPointDto
             {
                 Range = isMetric ? UnitConverter.YardsToMeters(p.Range) : p.Range,
@@ -59,7 +72,13 @@ public class TrajectoryController : ControllerBase
                 Energy = isMetric ? UnitConverter.FootPoundsToJoules(p.Energy) : p.Energy,
                 TimeOfFlight = p.TimeOfFlight,
                 Mach = p.Mach,
-                Drop = isMetric ? UnitConverter.InchesToCm(p.Drop) : p.Drop
+                Drop = isMetric ? UnitConverter.InchesToCm(p.Drop) : p.Drop,
+                WindDriftInches = isMetric ? UnitConverter.InchesToCm(p.WindDriftInches) : p.WindDriftInches,
+                DropMoa = p.DropMoa,
+                DropMils = p.DropMils,
+                WindDriftMoa = p.WindDriftMoa,
+                WindDriftMils = p.WindDriftMils,
+                IsTransonic = p.IsTransonic
             }).ToList()
         };
 

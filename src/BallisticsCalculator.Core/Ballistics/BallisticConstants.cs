@@ -29,6 +29,17 @@ public static class BallisticConstants
     public const double DefaultShotHeightInches = 30.0; // Picnic table height
     public const double DefaultMaxRangeYards = 1000.0;
 
+    // Atmosphere
+    public const double StandardHumidityPercent = 0.0; // ICAO standard = 0% humidity
+    public const double StandardAltitudeFt = 0.0;
+
+    // Conversions for MOA/mils
+    public const double MilsPerRadian = 1000.0; // NATO mils (actual: 2pi * 1000 / 6283.185 ~ 1)
+    public const double InchesPerMOA_At100Yd = 1.047; // 1 MOA ~ 1.047" at 100 yards
+
+    // Transonic threshold
+    public const double TransonicMach = 1.2;
+
     // Math
     public const double RadiansPerMOA = Math.PI / (180.0 * 60.0);
     public const double MOAPerRadian = 180.0 * 60.0 / Math.PI;

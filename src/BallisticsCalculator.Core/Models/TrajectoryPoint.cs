@@ -9,4 +9,10 @@ public class TrajectoryPoint
     public double TimeOfFlight { get; set; }
     public double Mach { get; set; }
     public double Drop { get; set; }
+    public double WindDriftInches { get; set; }
+    public double DropMoa { get; set; }
+    public double DropMils { get; set; }
+    public double WindDriftMoa { get; set; }
+    public double WindDriftMils { get; set; }
+    public bool IsTransonic { get; set; }
 }

@@ -13,4 +13,7 @@ public static class UnitConverter
 
     public static double FootPoundsToJoules(double ftLbs) => ftLbs * BallisticConstants.JoulesPerFootPound;
     public static double JoulesToFootPounds(double joules) => joules / BallisticConstants.JoulesPerFootPound;
+
+    public static double MphToKph(double mph) => mph * 1.60934;
+    public static double KphToMph(double kph) => kph / 1.60934;
 }
