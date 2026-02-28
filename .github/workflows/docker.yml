@@ -89,17 +89,19 @@ jobs:
                 -n ballistics-calc-api-dev \
             || true
 
-      - name: Reset failed Helm release
+      - name: Reset stuck Helm release
         run: |
           STATUS=$(helm status ballistics-calc-api \
             -n ballistics-calc-api-dev \
             -o json 2>/dev/null | jq -r '.info.status' 2>/dev/null || echo "not-found")
-          if [ "$STATUS" = "failed" ]; then
-            echo "Previous release in failed state — uninstalling to reset"
-            helm uninstall ballistics-calc-api -n ballistics-calc-api-dev --wait || true
-            kubectl delete pvc -l app.kubernetes.io/instance=ballistics-calc-api \
-              -n ballistics-calc-api-dev --wait=false || true
-          fi
+          case "$STATUS" in
+            failed|pending-install|pending-upgrade|pending-rollback)
+              echo "Release in '$STATUS' state — uninstalling to reset"
+              helm uninstall ballistics-calc-api -n ballistics-calc-api-dev --wait || true
+              kubectl delete pvc -l app.kubernetes.io/instance=ballistics-calc-api \
+                -n ballistics-calc-api-dev --wait=false || true
+              ;;
+          esac
 
       - name: Deploy API with Helm
         run: |
