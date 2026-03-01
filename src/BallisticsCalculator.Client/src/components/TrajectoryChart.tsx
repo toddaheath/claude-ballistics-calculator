@@ -30,7 +30,7 @@ export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRange
   const maxDataRange = data.points.length > 0 ? data.points[data.points.length - 1].range : 0;
 
   return (
-    <div className="trajectory-chart">
+    <div className="trajectory-chart" role="figure" aria-label={`Trajectory chart for ${data.cartridgeName}`}>
       <div className="chart-header">
         <h3>Trajectory: {data.cartridgeName}</h3>
         <div className="range-presets">
@@ -40,6 +40,8 @@ export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRange
               key={r}
               className={`range-btn${maxRange === r ? ' active' : ''}`}
               onClick={() => onMaxRangeChange(r)}
+              aria-label={`Set max range to ${r} ${unit}`}
+              aria-pressed={maxRange === r}
             >
               {r}{unit}
             </button>
