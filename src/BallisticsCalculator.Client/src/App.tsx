@@ -32,7 +32,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     const isChunk = error.name === 'ChunkLoadError' || error.message?.includes('Failed to fetch dynamically imported module');
     return { hasError: true, isChunkError: isChunk };
   }
-  componentDidCatch(error: Error, info: ErrorInfo) { console.error('ErrorBoundary caught:', error, info); }
+  componentDidCatch(error: Error, info: ErrorInfo) { if (import.meta.env.DEV) console.error('ErrorBoundary caught:', error, info); }
   render() {
     if (this.state.hasError) {
       return (

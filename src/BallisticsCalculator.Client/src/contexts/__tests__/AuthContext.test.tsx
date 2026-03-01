@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthProvider, useAuth } from '../AuthContext';
@@ -108,8 +108,11 @@ describe('AuthContext', () => {
 
     expect(screen.getByTestId('auth-status')).toHaveTextContent('authenticated');
     expect(screen.getByTestId('user-email')).toHaveTextContent('test@test.com');
-    expect(storageMock.setItem).toHaveBeenCalledWith('auth_token', 'jwt-token');
+    // refresh_token is set synchronously in login(); auth_token is set by useEffect
     expect(storageMock.setItem).toHaveBeenCalledWith('refresh_token', 'refresh-token');
+    await waitFor(() => {
+      expect(storageMock.setItem).toHaveBeenCalledWith('auth_token', 'jwt-token');
+    });
   });
 
   it('register sets user and stores token', async () => {
@@ -131,8 +134,10 @@ describe('AuthContext', () => {
 
     expect(screen.getByTestId('auth-status')).toHaveTextContent('authenticated');
     expect(screen.getByTestId('user-email')).toHaveTextContent('new@test.com');
-    expect(storageMock.setItem).toHaveBeenCalledWith('auth_token', 'reg-token');
     expect(storageMock.setItem).toHaveBeenCalledWith('refresh_token', 'reg-refresh');
+    await waitFor(() => {
+      expect(storageMock.setItem).toHaveBeenCalledWith('auth_token', 'reg-token');
+    });
   });
 
   it('logout clears user and removes tokens', async () => {
