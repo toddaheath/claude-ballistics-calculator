@@ -17,12 +17,16 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByEmailAsync(string email)
     {
         var normalized = email.ToLowerInvariant();
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == normalized);
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Email == normalized);
     }
 
     public async Task<User?> GetByIdAsync(int id)
     {
-        return await _context.Users.FindAsync(id);
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User> CreateAsync(User user)
@@ -56,7 +60,9 @@ public class UserRepository : IUserRepository
 
     public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
     {
-        return await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+        return await _context.RefreshTokens
+            .AsNoTracking()
+            .FirstOrDefaultAsync(rt => rt.Token == token);
     }
 
     public async Task RevokeRefreshTokenAsync(string token)
