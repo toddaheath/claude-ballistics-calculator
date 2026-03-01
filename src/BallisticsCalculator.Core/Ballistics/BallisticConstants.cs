@@ -18,6 +18,7 @@ public static class BallisticConstants
     public const double AirDensity = 0.002378; // slugs/ft³
 
     // Conversions
+    public const double GrainsToGrams = 0.06479891; // 1 grain = 0.06479891 grams
     public const double GrainsPerPound = 7000.0;
     public const double FeetPerYard = 3.0;
     public const double FeetPerMeter = 3.28084;
