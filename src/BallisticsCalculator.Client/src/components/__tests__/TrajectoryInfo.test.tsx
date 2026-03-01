@@ -9,9 +9,10 @@ vi.mock('../../services/api', () => ({
   calculateMpbr: vi.fn(),
 }));
 
-import { calculateMpbr } from '../../services/api';
+import { calculateMpbr, downloadDopeCard } from '../../services/api';
 
 const mockedCalculateMpbr = vi.mocked(calculateMpbr);
+const mockedDownloadDopeCard = vi.mocked(downloadDopeCard);
 
 const defaultSettings: EnvironmentSettings = {
   windSpeedMph: 0,
@@ -268,5 +269,75 @@ describe('TrajectoryInfo', () => {
     );
 
     expect(screen.queryByText('Download DOPE Card')).not.toBeInTheDocument();
+  });
+
+  it('shows error when MPBR calculation fails', async () => {
+    const user = userEvent.setup();
+    mockedCalculateMpbr.mockRejectedValue(new Error('API error'));
+
+    render(
+      <TrajectoryInfo
+        data={sampleData}
+        settings={defaultSettings}
+        cartridgeId={29}
+        maxRange={500}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /calculate mpbr/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/failed to calculate mpbr/i);
+    expect(screen.getByRole('button', { name: /calculate mpbr/i })).not.toBeDisabled();
+  });
+
+  it('shows error when DOPE card download fails', async () => {
+    const user = userEvent.setup();
+    mockedDownloadDopeCard.mockRejectedValue(new Error('Network error'));
+
+    render(
+      <TrajectoryInfo
+        data={sampleData}
+        settings={defaultSettings}
+        cartridgeId={29}
+        maxRange={500}
+      />
+    );
+
+    await user.click(screen.getByText('Download DOPE Card'));
+
+    expect(await screen.findByText(/failed to download dope card/i)).toBeInTheDocument();
+    expect(screen.getByText('Download DOPE Card')).not.toBeDisabled();
+  });
+
+  it('clears MPBR error on retry', async () => {
+    const user = userEvent.setup();
+    mockedCalculateMpbr
+      .mockRejectedValueOnce(new Error('API error'))
+      .mockResolvedValueOnce({
+        mpbrRange: 268,
+        optimalZeroRange: 228,
+        vitalZoneRadiusInches: 3.0,
+        nearZeroCrossing: 25,
+        farZeroCrossing: 228,
+        cartridgeName: '.308 Win',
+        unitSystem: 'yards',
+        dragModel: 'G1',
+      });
+
+    render(
+      <TrajectoryInfo
+        data={sampleData}
+        settings={defaultSettings}
+        cartridgeId={29}
+        maxRange={500}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /calculate mpbr/i }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(/failed to calculate mpbr/i);
+
+    await user.click(screen.getByRole('button', { name: /calculate mpbr/i }));
+    expect(await screen.findByText('268 yd')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
