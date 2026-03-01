@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import './CartridgeReference.css';
 
 interface CartridgeData {
@@ -106,6 +106,16 @@ export default function CartridgeReference() {
 
   const bulletTypes = useMemo(() => Array.from(new Set(CARTRIDGES.map(c => c.bulletType))).sort(), []);
 
+  // Close popover on Escape key
+  useEffect(() => {
+    if (!selectedBulletType) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedBulletType(null);
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [selectedBulletType]);
+
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const c of CARTRIDGES) {
@@ -209,8 +219,8 @@ export default function CartridgeReference() {
       </div>
 
       {selectedBulletType && BULLET_TYPE_GLOSSARY[selectedBulletType] && (
-        <div className="bullet-popover">
-          <button className="popover-close" onClick={() => setSelectedBulletType(null)}>×</button>
+        <div className="bullet-popover" role="dialog" aria-label={`${selectedBulletType} bullet type description`}>
+          <button className="popover-close" onClick={() => setSelectedBulletType(null)} aria-label="Close popover">×</button>
           <strong>{selectedBulletType}</strong>
           <p>{BULLET_TYPE_GLOSSARY[selectedBulletType]}</p>
         </div>
