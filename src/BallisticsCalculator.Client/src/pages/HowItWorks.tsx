@@ -289,6 +289,7 @@ Cd
 
         <h4>Trajectory Info Panel</h4>
         <table className="hiw-info-table">
+          <caption className="sr-only">Trajectory information panel field descriptions</caption>
           <tbody>
             <tr>
               <th scope="row">Cartridge</th>

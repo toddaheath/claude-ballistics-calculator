@@ -109,6 +109,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
     <div className="trajectory-info">
       <h3>Shot Details</h3>
       <table>
+        <caption className="sr-only">Shot details and atmospheric conditions</caption>
         <tbody>
           <tr>
             <th scope="row">Cartridge</th>
@@ -182,6 +183,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
           </button>
         ) : (
           <table>
+            <caption className="sr-only">Maximum point-blank range results</caption>
             <tbody>
               <tr>
                 <th scope="row">MPBR</th>
@@ -213,6 +215,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
           <h3 style={{ marginTop: 24 }}>Drop Table</h3>
           <div className="drop-table-wrapper">
             <table className="drop-table">
+              <caption className="sr-only">Bullet drop and wind drift at key ranges</caption>
               <thead>
                 <tr>
                   <th scope="col">Range</th>
