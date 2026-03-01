@@ -91,7 +91,7 @@
 
 .ref-summary {
   font-size: 0.82rem;
-  color: #666;
+  color: #555;
   margin-bottom: 10px;
 }
 
@@ -213,7 +213,7 @@
 /* ── Notes ── */
 
 .ref-notes {
-  color: #666;
+  color: #555;
   font-size: 0.82rem;
   font-style: italic;
   min-width: 160px;
@@ -270,7 +270,7 @@
   right: 12px;
   background: none;
   border: none;
-  color: #aaa;
+  color: #767676;
   font-size: 1.2rem;
   cursor: pointer;
   line-height: 1;
