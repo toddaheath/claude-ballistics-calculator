@@ -9,6 +9,7 @@ export default function UnitToggle({ unitSystem, onChange }: Props) {
   return (
     <div className="unit-toggle" role="group" aria-label="Select measurement units">
       <button
+        type="button"
         className={unitSystem === 'yards' ? 'active' : ''}
         aria-pressed={unitSystem === 'yards'}
         onClick={() => onChange('yards')}
@@ -16,6 +17,7 @@ export default function UnitToggle({ unitSystem, onChange }: Props) {
         Yards / Imperial
       </button>
       <button
+        type="button"
         className={unitSystem === 'meters' ? 'active' : ''}
         aria-pressed={unitSystem === 'meters'}
         onClick={() => onChange('meters')}

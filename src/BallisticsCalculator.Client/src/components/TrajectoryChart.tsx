@@ -41,6 +41,7 @@ function TrajectoryChart({ data, maxRange, unitSystem, onMaxRangeChange }: Props
           {rangePresets.map((r) => (
             <button
               key={r}
+              type="button"
               className={`range-btn${maxRange === r ? ' active' : ''}`}
               onClick={() => onMaxRangeChange(r)}
               aria-label={`Set max range to ${r} ${unit}`}

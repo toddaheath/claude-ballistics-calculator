@@ -172,6 +172,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
         )}
         {!mpbr ? (
           <button
+            type="button"
             className="mpbr-calc-btn"
             onClick={handleCalculateMpbr}
             disabled={mpbrLoading}
@@ -243,6 +244,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
             <div className="error" role="alert" style={{ marginTop: 12 }}>Failed to download DOPE card. Please try again.</div>
           )}
           <button
+            type="button"
             className="dope-download-btn"
             onClick={handleDownloadDope}
             disabled={downloading}

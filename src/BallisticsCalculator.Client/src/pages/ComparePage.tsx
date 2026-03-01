@@ -140,6 +140,7 @@ export default function ComparePage() {
             </select>
             {selectedIds.length > 2 && (
               <button
+                type="button"
                 className="remove-cartridge-btn"
                 onClick={() => handleRemoveCartridge(index)}
                 title="Remove"
@@ -154,12 +155,13 @@ export default function ComparePage() {
 
       <div className="compare-actions">
         {selectedIds.length < 5 && (
-          <button className="add-cartridge-btn" onClick={handleAddCartridge}>
+          <button type="button" className="add-cartridge-btn" onClick={handleAddCartridge}>
             + Add Cartridge
           </button>
         )}
         <div className="unit-toggle" role="group" aria-label="Select measurement units">
           <button
+            type="button"
             className={unitSystem === 'yards' ? 'active' : ''}
             aria-pressed={unitSystem === 'yards'}
             onClick={() => setUnitSystem('yards')}
@@ -167,6 +169,7 @@ export default function ComparePage() {
             Yards
           </button>
           <button
+            type="button"
             className={unitSystem === 'meters' ? 'active' : ''}
             aria-pressed={unitSystem === 'meters'}
             onClick={() => setUnitSystem('meters')}
@@ -175,6 +178,7 @@ export default function ComparePage() {
           </button>
         </div>
         <button
+          type="button"
           className="compare-btn"
           onClick={handleCompare}
           disabled={validIds.length < 2 || loading}
