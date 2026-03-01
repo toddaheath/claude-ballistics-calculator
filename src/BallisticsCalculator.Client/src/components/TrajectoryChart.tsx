@@ -75,7 +75,7 @@ export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRange
           <Tooltip
             contentStyle={{ fontSize: 13, borderRadius: 6 }}
             formatter={(value, name) => {
-              if (value == null) return '';
+              if (value == null || name == null) return '';
               const v = Number(value);
               const labels: Record<string, string> = {
                 height: `${v.toFixed(2)} ${isMetric ? 'cm' : 'in'}`,
