@@ -72,6 +72,8 @@ export default function RegisterPage() {
               value={confirm}
               onChange={e => setConfirm(e.target.value)}
               required
+              minLength={8}
+              maxLength={72}
               autoComplete="new-password"
             />
           </div>
