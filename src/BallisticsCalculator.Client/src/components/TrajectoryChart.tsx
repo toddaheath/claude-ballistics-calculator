@@ -33,7 +33,7 @@ export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRange
     <div className="trajectory-chart" role="figure" aria-label={`Trajectory chart for ${data.cartridgeName}`}>
       <div className="chart-header">
         <h3>Trajectory: {data.cartridgeName}</h3>
-        <div className="range-presets">
+        <div className="range-presets" role="group" aria-label="Maximum range presets">
           <span className="range-presets-label">Max range:</span>
           {rangePresets.map((r) => (
             <button
