@@ -219,7 +219,7 @@ function AppLayout() {
           <div className="site-title">
             <h1>Ballistics Calculator</h1>
           </div>
-          <nav className="site-nav">
+          <nav className="site-nav" aria-label="Main navigation">
             <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link nav-active' : 'nav-link'}>
               Calculator
             </NavLink>
