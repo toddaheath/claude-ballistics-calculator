@@ -227,4 +227,114 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
+
+    // ── Auth response content tests ──────────────────────────────────
+
+    [Fact]
+    public async Task Register_ReturnsRefreshToken()
+    {
+        var auth = await RegisterAndGetTokens();
+
+        auth.RefreshToken.Should().NotBeNullOrWhiteSpace();
+        auth.Token.Should().NotBeNullOrWhiteSpace();
+        auth.Email.Should().Contain("@example.com");
+        auth.UserId.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task Login_ReturnsRefreshToken()
+    {
+        var email = $"loginrt-{Guid.NewGuid().ToString("N")[..8]}@example.com";
+        var password = "Password1!";
+        await _client.PostAsJsonAsync("/api/v1/auth/register", new RegisterRequestDto { Email = email, Password = password });
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto { Email = email, Password = password });
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        result!.RefreshToken.Should().NotBeNullOrWhiteSpace();
+        result.Token.Should().NotBeNullOrWhiteSpace();
+        result.Email.Should().Be(email);
+    }
+
+    [Fact]
+    public async Task Refresh_NewTokenIsUsable()
+    {
+        var auth = await RegisterAndGetTokens();
+
+        // Rotate to get new tokens
+        var refreshResp = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = auth.RefreshToken });
+        var newAuth = await refreshResp.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+        // Use the new access token to call a protected endpoint
+        var authedClient = _factory.CreateClient();
+        authedClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", newAuth!.Token);
+
+        var trajResp = await authedClient.PostAsJsonAsync("/api/v1/trajectory",
+            new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "yards" });
+
+        trajResp.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task Refresh_NewRefreshTokenIsUsable()
+    {
+        var auth = await RegisterAndGetTokens();
+
+        // First rotation
+        var refreshResp = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = auth.RefreshToken });
+        var newAuth = await refreshResp.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+        // Second rotation with the new refresh token
+        var secondRefresh = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = newAuth!.RefreshToken });
+
+        secondRefresh.StatusCode.Should().Be(HttpStatusCode.OK);
+        var result = await secondRefresh.Content.ReadFromJsonAsync<AuthResponseDto>();
+        result!.Token.Should().NotBeNullOrWhiteSpace();
+        result.RefreshToken.Should().NotBe(newAuth.RefreshToken);
+    }
+
+    [Fact]
+    public async Task Logout_ThenRefresh_Returns401()
+    {
+        var auth = await RegisterAndGetTokens();
+
+        // Logout (revokes the refresh token)
+        await _client.PostAsJsonAsync("/api/v1/auth/logout",
+            new RefreshRequestDto { RefreshToken = auth.RefreshToken });
+
+        // Try to refresh with the revoked token
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
+            new RefreshRequestDto { RefreshToken = auth.RefreshToken });
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    // ── Public endpoint access without auth ──────────────────────────
+
+    [Fact]
+    public async Task Cartridges_WithoutAuth_ReturnsOk()
+    {
+        // Cartridges endpoint is public — no auth required
+        var unauthClient = _factory.CreateClient();
+
+        var response = await unauthClient.GetAsync("/api/v1/cartridges");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var cartridges = await response.Content.ReadFromJsonAsync<List<CartridgeDto>>();
+        cartridges.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task CartridgeById_WithoutAuth_ReturnsOk()
+    {
+        var unauthClient = _factory.CreateClient();
+
+        var response = await unauthClient.GetAsync("/api/v1/cartridges/29");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
 }
