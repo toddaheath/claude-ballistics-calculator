@@ -143,6 +143,7 @@ export default function ComparePage() {
                 className="remove-cartridge-btn"
                 onClick={() => handleRemoveCartridge(index)}
                 title="Remove"
+                aria-label={`Remove cartridge #${index + 1}`}
               >
                 &times;
               </button>
@@ -184,7 +185,7 @@ export default function ComparePage() {
       {loading && <div className="loading" role="status" aria-live="polite">Comparing trajectories...</div>}
 
       {compareData && !loading && chartData.length > 0 && (
-        <div className="trajectory-chart">
+        <div className="trajectory-chart" role="figure" aria-label="Trajectory comparison chart">
           <div className="chart-header">
             <h3>Trajectory Comparison</h3>
           </div>

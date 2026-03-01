@@ -149,6 +149,7 @@ export default function CartridgeReference() {
           placeholder="Search by name or bullet type…"
           value={search}
           onChange={e => setSearch(e.target.value)}
+          aria-label="Search cartridges by name or bullet type"
         />
       </div>
 

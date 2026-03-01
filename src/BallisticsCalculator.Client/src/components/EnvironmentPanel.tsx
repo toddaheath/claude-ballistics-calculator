@@ -19,12 +19,13 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
         className="environment-toggle"
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
+        aria-controls="environment-settings"
       >
         Settings {expanded ? '\u25B4' : '\u25BE'}
       </button>
 
       {expanded && (
-        <div className="environment-sections">
+        <div className="environment-sections" id="environment-settings" role="region" aria-label="Environment settings">
           {/* Wind */}
           <div className="env-section">
             <h4 className="env-section-title">Wind</h4>
