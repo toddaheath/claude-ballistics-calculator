@@ -65,14 +65,13 @@ public class TrajectoryController : ControllerBase
     [HttpPost("compare")]
     public async Task<ActionResult<CompareResponseDto>> Compare([FromBody] CompareRequestDto request)
     {
-        // Validate all cartridge IDs exist
-        var cartridges = new List<Cartridge>();
-        foreach (var id in request.CartridgeIds)
+        // Fetch all cartridges in a single query
+        var cartridges = await _repository.GetByIdsAsync(request.CartridgeIds);
+        if (cartridges.Count != request.CartridgeIds.Count)
         {
-            var cartridge = await _repository.GetByIdAsync(id);
-            if (cartridge is null)
-                return NotFound(new { message = $"Cartridge with ID {id} not found." });
-            cartridges.Add(cartridge);
+            var found = cartridges.Select(c => c.Id).ToHashSet();
+            var missing = request.CartridgeIds.First(id => !found.Contains(id));
+            return NotFound(new { message = $"Cartridge with ID {missing} not found." });
         }
 
         // Parse drag model
@@ -86,9 +85,11 @@ public class TrajectoryController : ControllerBase
         if (zeroRange >= maxRange)
             return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
 
+        // Preserve request order
+        var cartridgeMap = cartridges.ToDictionary(c => c.Id);
         var trajectories = new List<TrajectoryResponseDto>();
 
-        foreach (var cartridge in cartridges)
+        foreach (var cartridge in request.CartridgeIds.Select(id => cartridgeMap[id]))
         {
             var result = _calculator.Calculate(
                 cartridge,

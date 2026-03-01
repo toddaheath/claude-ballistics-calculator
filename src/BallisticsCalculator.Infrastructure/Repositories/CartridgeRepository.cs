@@ -26,4 +26,12 @@ public class CartridgeRepository : ICartridgeRepository
     {
         return await _context.Cartridges.FindAsync(id);
     }
+
+    public async Task<List<Cartridge>> GetByIdsAsync(IEnumerable<int> ids)
+    {
+        var idList = ids.ToList();
+        return await _context.Cartridges
+            .Where(c => idList.Contains(c.Id))
+            .ToListAsync();
+    }
 }
