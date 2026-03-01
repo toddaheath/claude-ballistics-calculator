@@ -70,7 +70,7 @@ export default function CustomCartridgePage() {
         <div className="custom-form-grid">
           <div className="env-field">
             <label htmlFor="custom-name">Load Name</label>
-            <input id="custom-name" type="text" value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" />
+            <input id="custom-name" type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-weight">Bullet Weight (gr)</label>
@@ -90,7 +90,7 @@ export default function CustomCartridgePage() {
           </div>
           <div className="env-field">
             <label htmlFor="custom-type">Bullet Type</label>
-            <input id="custom-type" type="text" value={bulletType} onChange={(e) => setBulletType(e.target.value)} autoComplete="off" />
+            <input id="custom-type" type="text" value={bulletType} onChange={(e) => setBulletType(e.target.value)} maxLength={50} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-drag">Drag Model</label>
