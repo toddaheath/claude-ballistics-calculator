@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ReferenceDot, ReferenceArea, Legend, ResponsiveContainer, Label
@@ -14,18 +15,20 @@ interface Props {
   onMaxRangeChange: (range: number) => void;
 }
 
-export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRangeChange }: Props) {
+function TrajectoryChart({ data, maxRange, unitSystem, onMaxRangeChange }: Props) {
   const isMetric = unitSystem === 'meters';
   const rangeLabel = isMetric ? 'Range (m)' : 'Range (yards)';
   const heightLabel = isMetric ? 'Height (cm)' : 'Height (inches)';
   const unit = isMetric ? 'm' : 'yd';
   const rangePresets = isMetric ? RANGE_PRESETS_METERS : RANGE_PRESETS_YARDS;
 
-  // Downsample to every 5 points for chart performance
-  const chartData = data.points.filter((_, i) => i % 5 === 0 || i === data.points.length - 1);
+  const chartData = useMemo(
+    () => data.points.filter((_, i) => i % 5 === 0 || i === data.points.length - 1),
+    [data.points]
+  );
 
   const crossingRange = data.secondCrossingRange;
-  const hasWindDrift = data.points.some((p) => p.windDriftInches !== 0);
+  const hasWindDrift = useMemo(() => data.points.some((p) => p.windDriftInches !== 0), [data.points]);
   const transonicRange = data.transonicRange ?? 0;
   const maxDataRange = data.points.length > 0 ? data.points[data.points.length - 1].range : 0;
 
@@ -199,3 +202,5 @@ export default function TrajectoryChart({ data, maxRange, unitSystem, onMaxRange
     </div>
   );
 }
+
+export default memo(TrajectoryChart);
