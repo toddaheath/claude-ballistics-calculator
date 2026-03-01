@@ -26,6 +26,7 @@ deploy/
 
 ## Build & Test Commands
 
+### Backend (.NET)
 - Build: `dotnet build BallisticsCalculator.sln`
 - Run all tests: `dotnet test BallisticsCalculator.sln`
 - Run Core tests: `dotnet test tests/BallisticsCalculator.Core.Tests/`
@@ -33,7 +34,14 @@ deploy/
 - Run a single test: `dotnet test --filter "FullyQualifiedName~TestClassName.TestMethodName"`
 - Run with coverage: `dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings`
 - Run API: `dotnet run --project src/BallisticsCalculator.Api` (port 5062)
+
+### Frontend (React/TypeScript)
 - Run frontend: `cd src/BallisticsCalculator.Client && npm run dev` (port 5173, proxies /api to 5062)
+- Run frontend tests: `cd src/BallisticsCalculator.Client && npm test` (Vitest)
+- TypeScript strict check: `cd src/BallisticsCalculator.Client && npx tsc --noEmit -p tsconfig.app.json`
+- Lint: `cd src/BallisticsCalculator.Client && npm run lint`
+
+**Important:** Always validate TypeScript with `tsconfig.app.json` (not the base `tsconfig.json`). The app config has `noUnusedLocals` and `noUnusedParameters` enabled, which is what Vite uses for production builds.
 
 ## Docker
 
@@ -42,9 +50,19 @@ deploy/
 
 ## Key Technical Details
 
-- Ballistics engine uses RK4 integration with G1 drag model (76-entry Cd table)
+- Ballistics engine uses RK4 integration with G1 and G7 drag models (selectable)
+- G1: 76-entry Cd table (`G1DragModel.cs`), G7: 73-entry Cd table (`G7DragModel.cs`)
 - BC unit conversion: lb/in² to slugs/ft² via factor 144/g (32.174)
 - Bore elevation angle found via binary search (50 iterations)
+- MPBR calculation via two-pass binary search (coarse step=10, fine step=1)
 - API auto-applies EF Core migrations on startup (dev mode)
 - API tests use InMemory database via WebApplicationFactory
+- Frontend tests use Vitest with jsdom + @testing-library/react
 - Seed data: 43 cartridges across 4 categories (Handgun, Intermediate, Standard Rifle, Magnum)
+- JWT auth: `TrajectoryController` requires `[Authorize]`; `CartridgesController` is public
+
+## Test Counts
+
+- Backend: 168 tests (104 Core + 64 API)
+- Frontend: 34 tests (Vitest)
+- Total: 202 tests
