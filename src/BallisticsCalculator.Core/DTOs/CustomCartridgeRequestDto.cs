@@ -5,7 +5,7 @@ namespace BallisticsCalculator.Core.DTOs;
 public class CustomCartridgeRequestDto
 {
     [Required]
-    [MaxLength(100)]
+    [MaxLength(100, ErrorMessage = "Name must be at most 100 characters.")]
     public string Name { get; set; } = "Custom Load";
 
     [Range(10, 1000, ErrorMessage = "BulletWeightGrains must be between 10 and 1000.")]
@@ -20,14 +20,14 @@ public class CustomCartridgeRequestDto
     [Range(0.1, 1.0, ErrorMessage = "BulletDiameterInches must be between 0.1 and 1.0.")]
     public double? BulletDiameterInches { get; set; }
 
-    [MaxLength(50)]
+    [MaxLength(50, ErrorMessage = "BulletType must be at most 50 characters.")]
     public string? BulletType { get; set; }
 
     // Trajectory parameters
-    [Range(10, 1000)]
+    [Range(10, 1000, ErrorMessage = "ZeroRange must be between 10 and 1000.")]
     public double? ZeroRange { get; set; }
 
-    [Range(10, 3000)]
+    [Range(10, 3000, ErrorMessage = "MaxRange must be between 10 and 3000.")]
     public double? MaxRange { get; set; }
 
     [RegularExpression(@"^(yards|meters)$", ErrorMessage = "UnitSystem must be 'yards' or 'meters'.")]

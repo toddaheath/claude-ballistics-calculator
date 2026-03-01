@@ -9,10 +9,10 @@ public class CompareRequestDto
     [MaxLength(5, ErrorMessage = "At most 5 cartridge IDs can be compared.")]
     public List<int> CartridgeIds { get; set; } = new();
 
-    [Range(10, 1000)]
+    [Range(10, 1000, ErrorMessage = "ZeroRange must be between 10 and 1000.")]
     public double? ZeroRange { get; set; }
 
-    [Range(10, 3000)]
+    [Range(10, 3000, ErrorMessage = "MaxRange must be between 10 and 3000.")]
     public double? MaxRange { get; set; }
 
     [RegularExpression(@"^(yards|meters)$", ErrorMessage = "UnitSystem must be 'yards' or 'meters'.")]
