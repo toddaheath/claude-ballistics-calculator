@@ -433,4 +433,347 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
         var response = await _client.PostAsJsonAsync("/api/v1/trajectory/custom", request);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    // ========== Coverage: G7 drag model across all endpoints ==========
+
+    [Fact]
+    public async Task Compare_WithG7DragModel_ReturnsG7()
+    {
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = new List<int> { 29, 21 },
+            UnitSystem = "yards",
+            DragModel = "G7"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<CompareResponseDto>();
+        result.Should().NotBeNull();
+        result!.Trajectories.Should().HaveCount(2);
+        result.Trajectories[0].DragModel.Should().Be("G7");
+    }
+
+    [Fact]
+    public async Task DopeCard_WithG7DragModel_ReturnsCsvWithG7()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            DragModel = "G7"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/dope-card", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var csv = await response.Content.ReadAsStringAsync();
+        csv.Should().Contain("G7");
+    }
+
+    [Fact]
+    public async Task Mpbr_WithG7DragModel_ReturnsG7()
+    {
+        var request = new MpbrRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            DragModel = "G7"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/mpbr", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<MpbrResponseDto>();
+        result!.DragModel.Should().Be("G7");
+        result.MpbrRange.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task Custom_WithG7DragModel_ReturnsG7()
+    {
+        var request = new CustomCartridgeRequestDto
+        {
+            Name = "Custom G7",
+            BulletWeightGrains = 175,
+            MuzzleVelocityFps = 2600,
+            BallisticCoefficient = 0.275,
+            UnitSystem = "yards",
+            DragModel = "G7"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/custom", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result!.DragModel.Should().Be("G7");
+    }
+
+    // ========== Coverage: Metric units across endpoints ==========
+
+    [Fact]
+    public async Task Compare_MetricUnits_ReturnsMeters()
+    {
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = new List<int> { 29, 21 },
+            UnitSystem = "meters"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<CompareResponseDto>();
+        result!.UnitSystem.Should().Be("meters");
+        result.Trajectories[0].UnitSystem.Should().Be("meters");
+        // Zero range should be ~91m
+        result.Trajectories[0].ZeroRange.Should().BeApproximately(91.44, 1);
+    }
+
+    [Fact]
+    public async Task Mpbr_MetricUnits_ReturnsMeters()
+    {
+        var request = new MpbrRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "meters"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/mpbr", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<MpbrResponseDto>();
+        result!.UnitSystem.Should().Be("meters");
+        result.MpbrRange.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task Custom_MetricUnits_ReturnsMeters()
+    {
+        var request = new CustomCartridgeRequestDto
+        {
+            Name = "Custom Metric",
+            BulletWeightGrains = 168,
+            MuzzleVelocityFps = 2680,
+            BallisticCoefficient = 0.462,
+            UnitSystem = "meters"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/custom", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result!.UnitSystem.Should().Be("meters");
+        result.ZeroRange.Should().BeApproximately(91.44, 1);
+    }
+
+    // ========== Coverage: ZeroRange >= MaxRange validation ==========
+
+    [Fact]
+    public async Task Compare_ZeroRangeExceedsMaxRange_Returns400()
+    {
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = new List<int> { 29, 21 },
+            UnitSystem = "yards",
+            ZeroRange = 500,
+            MaxRange = 200
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task DopeCard_ZeroRangeExceedsMaxRange_Returns400()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            ZeroRange = 500,
+            MaxRange = 200
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/dope-card", request);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Custom_ZeroRangeExceedsMaxRange_Returns400()
+    {
+        var request = new CustomCartridgeRequestDto
+        {
+            Name = "Bad Range",
+            BulletWeightGrains = 175,
+            MuzzleVelocityFps = 2600,
+            BallisticCoefficient = 0.505,
+            UnitSystem = "yards",
+            ZeroRange = 500,
+            MaxRange = 200
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/custom", request);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    // ========== Coverage: DOPE card with long range (exercises all range filters) ==========
+
+    [Fact]
+    public async Task DopeCard_LongRange_HasPointsAtAllIntervals()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            MaxRange = 1000
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/dope-card", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var csv = await response.Content.ReadAsStringAsync();
+        var lines = csv.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+        // Should have data lines (skip header comments and column header)
+        var dataLines = lines.Where(l => !l.StartsWith('#') && !l.StartsWith("Range")).ToList();
+        dataLines.Count.Should().BeGreaterThan(10);
+
+        // Should include a 25yd interval point (e.g. 75)
+        dataLines.Should().Contain(l => l.StartsWith("75,"));
+        // Should include a 50yd interval point beyond 300 (e.g. 350)
+        dataLines.Should().Contain(l => l.StartsWith("350,"));
+        // Should include a 100yd interval point beyond 500 (e.g. 600)
+        dataLines.Should().Contain(l => l.StartsWith("600,"));
+    }
+
+    // ========== Coverage: MPBR with custom vital zone and sight height ==========
+
+    [Fact]
+    public async Task Mpbr_CustomVitalZone_ReturnsSuccess()
+    {
+        var request = new MpbrRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            VitalZoneRadiusInches = 5.0,
+            SightHeightInches = 2.0
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/mpbr", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<MpbrResponseDto>();
+        result!.VitalZoneRadiusInches.Should().Be(5.0);
+        // Larger vital zone should give longer MPBR
+        result.MpbrRange.Should().BeGreaterThan(200);
+    }
+
+    // ========== Coverage: Custom cartridge with all optional fields ==========
+
+    [Fact]
+    public async Task Custom_AllOptionalFields_ReturnsSuccess()
+    {
+        var request = new CustomCartridgeRequestDto
+        {
+            Name = "Fully Loaded",
+            BulletWeightGrains = 168,
+            MuzzleVelocityFps = 2680,
+            BallisticCoefficient = 0.462,
+            BulletDiameterInches = 0.308,
+            BulletType = "BTHP",
+            UnitSystem = "yards",
+            MaxRange = 600,
+            ZeroRange = 200,
+            ShotHeightInches = 36,
+            SightHeightInches = 2.0,
+            WindSpeedMph = 10,
+            WindDirectionDeg = 90,
+            TemperatureF = 80,
+            AltitudeFt = 3000,
+            PressureInHg = 27.5,
+            HumidityPercent = 40,
+            ShootingAngleDeg = 15
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/custom", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result!.CartridgeName.Should().Be("Fully Loaded");
+        result.ShotHeight.Should().Be(36);
+        result.Points.Should().NotBeEmpty();
+    }
+
+    // ========== Coverage: Unauthenticated request returns 401 ==========
+
+    [Fact]
+    public async Task Calculate_Unauthenticated_Returns401()
+    {
+        var factory = new CustomWebApplicationFactory();
+        var unauthClient = factory.CreateClient();
+
+        var request = new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "yards" };
+        var response = await unauthClient.PostAsJsonAsync("/api/v1/trajectory", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    // ========== Coverage: Compare with five cartridges (max) ==========
+
+    [Fact]
+    public async Task Compare_FiveCartridges_ReturnsAllTrajectories()
+    {
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = new List<int> { 29, 21, 2, 10, 42 },
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<CompareResponseDto>();
+        result!.Trajectories.Should().HaveCount(5);
+    }
+
+    // ========== Coverage: Shooting angle on trajectory endpoint ==========
+
+    [Fact]
+    public async Task Calculate_WithShootingAngle_ReturnsSuccess()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            ShootingAngleDeg = 30
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result!.Points.Should().NotBeEmpty();
+    }
+
+    // ========== Coverage: DOPE card metric ==========
+
+    [Fact]
+    public async Task DopeCard_MetricUnits_ContainsMetricHeader()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "meters",
+            MaxRange = 500
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/dope-card", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var csv = await response.Content.ReadAsStringAsync();
+        // Metric zero range should be ~91m
+        csv.Should().Contain("91");
+    }
 }
