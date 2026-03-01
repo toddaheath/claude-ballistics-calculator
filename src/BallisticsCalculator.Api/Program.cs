@@ -55,6 +55,9 @@ builder.Services.AddApiVersioning(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Response compression
+builder.Services.AddResponseCompression();
+
 // DI registrations
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ICartridgeRepository, CartridgeRepository>();
@@ -148,6 +151,7 @@ app.UseExceptionHandler(error => error.Run(async context =>
 }));
 
 app.UseSerilogRequestLogging();
+app.UseResponseCompression();
 app.UseCors();
 app.UseRateLimiter();
 app.UseAuthentication();
