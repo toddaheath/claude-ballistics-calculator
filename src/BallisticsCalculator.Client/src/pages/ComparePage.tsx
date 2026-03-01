@@ -191,6 +191,10 @@ export default function ComparePage() {
       {error && <div className="error" role="alert">{error}</div>}
       {loading && <div className="loading" role="status" aria-live="polite">Comparing trajectories...</div>}
 
+      {!compareData && !loading && !error && (
+        <p className="loading">Select 2–5 cartridges and click Compare to view trajectories.</p>
+      )}
+
       {compareData && !loading && chartData.length > 0 && (
         <div className="trajectory-chart" role="figure" aria-label="Trajectory comparison chart">
           <div className="chart-header">
