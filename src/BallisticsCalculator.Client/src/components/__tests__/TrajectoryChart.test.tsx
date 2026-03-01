@@ -69,10 +69,10 @@ function makeData(overrides?: Partial<TrajectoryResponse>): TrajectoryResponse {
   };
 }
 
-const defaultProps = () => ({
+const defaultProps = (unitSystem: 'yards' | 'meters' = 'yards') => ({
   data: makeData(),
   maxRange: 500,
-  unitSystem: 'yards' as const,
+  unitSystem,
   onMaxRangeChange: vi.fn(),
 });
 
@@ -98,9 +98,7 @@ describe('TrajectoryChart', () => {
   });
 
   it('renders range preset buttons in meters', () => {
-    const props = defaultProps();
-    props.unitSystem = 'meters';
-    render(<TrajectoryChart {...props} />);
+    render(<TrajectoryChart {...defaultProps('meters')} />);
     expect(screen.getByText('150m')).toBeInTheDocument();
     expect(screen.getByText('500m')).toBeInTheDocument();
     expect(screen.getByText('1000m')).toBeInTheDocument();
@@ -139,9 +137,7 @@ describe('TrajectoryChart', () => {
   });
 
   it('renders axis labels for meters', () => {
-    const props = defaultProps();
-    props.unitSystem = 'meters';
-    render(<TrajectoryChart {...props} />);
+    render(<TrajectoryChart {...defaultProps('meters')} />);
     expect(screen.getByText('Range (m)')).toBeInTheDocument();
     expect(screen.getByText('Height (cm)')).toBeInTheDocument();
   });
@@ -249,9 +245,7 @@ describe('TrajectoryChart', () => {
   });
 
   it('renders first crossing dot at 45.7m in metric mode', () => {
-    const props = defaultProps();
-    props.unitSystem = 'meters';
-    render(<TrajectoryChart {...props} />);
+    render(<TrajectoryChart {...defaultProps('meters')} />);
     const dots = screen.getAllByTestId('reference-dot');
     const metricCross = dots.find(el => el.getAttribute('data-x') === '45.7');
     expect(metricCross).toBeTruthy();
