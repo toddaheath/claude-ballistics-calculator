@@ -7,7 +7,7 @@ interface Props {
 
 export default function UnitToggle({ unitSystem, onChange }: Props) {
   return (
-    <div className="unit-toggle">
+    <div className="unit-toggle" role="group" aria-label="Select measurement units">
       <button
         className={unitSystem === 'yards' ? 'active' : ''}
         aria-pressed={unitSystem === 'yards'}

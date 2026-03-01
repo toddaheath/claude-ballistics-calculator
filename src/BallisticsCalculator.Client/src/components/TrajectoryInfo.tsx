@@ -210,11 +210,11 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
             <table className="drop-table">
               <thead>
                 <tr>
-                  <th>Range</th>
-                  <th>Drop (MOA)</th>
-                  <th>Drop (Mil)</th>
-                  <th>Wind (MOA)</th>
-                  <th>Wind (Mil)</th>
+                  <th scope="col">Range</th>
+                  <th scope="col">Drop (MOA)</th>
+                  <th scope="col">Drop (Mil)</th>
+                  <th scope="col">Wind (MOA)</th>
+                  <th scope="col">Wind (Mil)</th>
                 </tr>
               </thead>
               <tbody>
