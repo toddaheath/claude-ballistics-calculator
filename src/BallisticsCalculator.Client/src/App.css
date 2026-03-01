@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 .skip-to-content {
   position: absolute;
   left: -9999px;
@@ -762,6 +766,9 @@ main {
 /* ── Reduced Motion ── */
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
