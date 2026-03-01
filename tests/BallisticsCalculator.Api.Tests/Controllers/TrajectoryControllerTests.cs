@@ -776,4 +776,113 @@ public class TrajectoryControllerTests : IClassFixture<CustomWebApplicationFacto
         // Metric zero range should be ~91m
         csv.Should().Contain("91");
     }
+
+    // ========== Coverage: DOPE card range boundaries ==========
+
+    [Fact]
+    public async Task DopeCard_ContainsBoundaryRanges_300And500()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29,
+            UnitSystem = "yards",
+            MaxRange = 600
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/dope-card", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var csv = await response.Content.ReadAsStringAsync();
+        var lines = csv.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var dataLines = lines.Where(l => !l.StartsWith('#') && !l.StartsWith("Range")).ToList();
+        var ranges = dataLines.Select(l => int.Parse(l.Split(',')[0])).ToList();
+
+        // 300 is the boundary between 25yd and 50yd intervals (should appear)
+        ranges.Should().Contain(300);
+        // 500 is the boundary between 50yd and 100yd intervals (should appear)
+        ranges.Should().Contain(500);
+        // Under 300: every 25 yards — verify 275 is present
+        ranges.Should().Contain(275);
+        // Between 300-500: every 50 yards — verify 350 is present but 325 is not
+        ranges.Should().Contain(350);
+        ranges.Should().NotContain(325);
+    }
+
+    // ========== Coverage: Compare with mixed valid/invalid IDs ==========
+
+    [Fact]
+    public async Task Compare_OneMissingCartridge_Returns404WithId()
+    {
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = [29, 99999],
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("99999");
+    }
+
+    [Fact]
+    public async Task Compare_PreservesRequestOrder()
+    {
+        // Request cartridges in reverse order: SMK first, BTHP second
+        var request = new CompareRequestDto
+        {
+            CartridgeIds = [30, 29],
+            UnitSystem = "yards"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<CompareResponseDto>();
+        result!.Trajectories.Should().HaveCount(2);
+        result.Trajectories[0].CartridgeName.Should().Contain("175gr");
+        result.Trajectories[1].CartridgeName.Should().Contain("168gr");
+    }
+
+    // ========== Coverage: Custom cartridge weight conversion ==========
+
+    [Fact]
+    public async Task Custom_BulletWeight_ProducesReasonableTrajectory()
+    {
+        var request = new CustomCartridgeRequestDto
+        {
+            Name = "Test 150gr",
+            BulletWeightGrains = 150,
+            MuzzleVelocityFps = 2800,
+            BallisticCoefficient = 0.435,
+            UnitSystem = "yards",
+            MaxRange = 300
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/custom", request);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadFromJsonAsync<TrajectoryResponseDto>();
+        result!.MuzzleVelocity.Should().BeApproximately(2800, 1);
+        result.Points.Should().NotBeEmpty();
+        // At 100 yards the velocity should have dropped
+        var point100 = result.Points.First(p => Math.Abs(p.Range - 100) < 1);
+        point100.Velocity.Should().BeLessThan(2800);
+        point100.Energy.Should().BeGreaterThan(0);
+    }
+
+    // ========== Coverage: CartridgesController.GetById 404 message ==========
+
+    [Fact]
+    public async Task GetCartridgeById_NotFound_ReturnsMessageBody()
+    {
+        var client = _client; // uses same authorized client
+        var response = await client.GetAsync("/api/v1/cartridges/99999");
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("99999");
+        body.Should().Contain("not found");
+    }
 }
