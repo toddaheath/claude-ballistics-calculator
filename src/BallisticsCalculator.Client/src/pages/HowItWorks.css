@@ -308,19 +308,23 @@
   margin: 12px 0;
 }
 
-.hiw-info-table td {
+.hiw-info-table td,
+.hiw-info-table th {
   padding: 8px 12px;
   border-bottom: 1px solid #eee;
   vertical-align: top;
   line-height: 1.55;
 }
 
-.hiw-info-table td:first-child {
+.hiw-info-table th[scope="row"] {
   width: 160px;
   color: #555;
+  font-weight: 600;
+  text-align: left;
 }
 
-.hiw-info-table tr:last-child td {
+.hiw-info-table tr:last-child td,
+.hiw-info-table tr:last-child th {
   border-bottom: none;
 }
 
@@ -391,7 +395,7 @@
     font-size: 0.72rem;
   }
 
-  .hiw-info-table td:first-child {
+  .hiw-info-table th[scope="row"] {
     width: 120px;
   }
 }

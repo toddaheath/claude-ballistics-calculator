@@ -291,27 +291,27 @@ Cd
         <table className="hiw-info-table">
           <tbody>
             <tr>
-              <td><strong>Cartridge</strong></td>
+              <th scope="row">Cartridge</th>
               <td>The selected load name from the database.</td>
             </tr>
             <tr>
-              <td><strong>Muzzle Velocity</strong></td>
+              <th scope="row">Muzzle Velocity</th>
               <td>Initial bullet speed at the muzzle (fps or m/s).</td>
             </tr>
             <tr>
-              <td><strong>Zero Range</strong></td>
+              <th scope="row">Zero Range</th>
               <td>Distance where the bullet crosses LOS — default 100 yd / 91.4 m.</td>
             </tr>
             <tr>
-              <td><strong>Bore Elevation</strong></td>
+              <th scope="row">Bore Elevation</th>
               <td>How much the bore is tilted above LOS, in MOA. 1 MOA ≈ 1.047" per 100 yd.</td>
             </tr>
             <tr>
-              <td><strong>Height at 50 yd</strong></td>
+              <th scope="row">Height at 50 yd</th>
               <td>Bullet height above LOS at 50 yards — the practical "check zero" number.</td>
             </tr>
             <tr>
-              <td><strong>2nd Crossing Range</strong></td>
+              <th scope="row">2nd Crossing Range</th>
               <td>Range where the bullet returns to its 50-yd height on descent.</td>
             </tr>
           </tbody>
