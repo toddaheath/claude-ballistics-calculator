@@ -17,6 +17,7 @@ public class CartridgeRepository : ICartridgeRepository
     public async Task<List<Cartridge>> GetAllAsync()
     {
         return await _context.Cartridges
+            .AsNoTracking()
             .OrderBy(c => c.Category)
             .ThenBy(c => c.Name)
             .ToListAsync();
@@ -24,13 +25,16 @@ public class CartridgeRepository : ICartridgeRepository
 
     public async Task<Cartridge?> GetByIdAsync(int id)
     {
-        return await _context.Cartridges.FindAsync(id);
+        return await _context.Cartridges
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<List<Cartridge>> GetByIdsAsync(IEnumerable<int> ids)
     {
         var idList = ids.ToList();
         return await _context.Cartridges
+            .AsNoTracking()
             .Where(c => idList.Contains(c.Id))
             .ToListAsync();
     }
