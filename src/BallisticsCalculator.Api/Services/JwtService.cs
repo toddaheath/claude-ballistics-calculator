@@ -19,6 +19,8 @@ public class JwtService
     public JwtService(IConfiguration configuration)
     {
         _secret   = configuration["Jwt:Secret"]   ?? throw new InvalidOperationException("Jwt:Secret is not configured.");
+        if (_secret.Length < 32)
+            throw new InvalidOperationException("Jwt:Secret must be at least 32 characters for HMAC-SHA256.");
         _issuer   = configuration["Jwt:Issuer"]   ?? "ballistics-api";
         _audience = configuration["Jwt:Audience"] ?? "ballistics-client";
     }
