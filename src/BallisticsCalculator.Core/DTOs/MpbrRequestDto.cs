@@ -13,7 +13,9 @@ public class MpbrRequestDto
     [Range(0.5, 6, ErrorMessage = "SightHeightInches must be between 0.5 and 6.")]
     public double? SightHeightInches { get; set; }
 
+    [RegularExpression(@"^(G1|G7)$", ErrorMessage = "DragModel must be 'G1' or 'G7'.")]
     public string? DragModel { get; set; }
 
+    [RegularExpression(@"^(yards|meters)$", ErrorMessage = "UnitSystem must be 'yards' or 'meters'.")]
     public string UnitSystem { get; set; } = "yards";
 }
