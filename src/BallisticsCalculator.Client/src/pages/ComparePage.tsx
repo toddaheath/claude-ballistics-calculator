@@ -119,7 +119,7 @@ export default function ComparePage() {
       <div className="compare-selectors">
         {selectedIds.map((id, index) => (
           <div key={index} className="compare-selector">
-            <label htmlFor={`compare-select-${index}`}>#{index + 1}</label>
+            <label htmlFor={`compare-select-${index}`}>Cartridge #{index + 1}</label>
             <select
               id={`compare-select-${index}`}
               value={id ?? ''}
