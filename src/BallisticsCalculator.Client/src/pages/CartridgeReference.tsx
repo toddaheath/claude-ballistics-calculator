@@ -136,12 +136,13 @@ export default function CartridgeReference() {
       </div>
 
       <div className="ref-filters">
-        <div className="ref-category-tabs">
+        <div className="ref-category-tabs" role="group" aria-label="Filter by category">
           {CATEGORIES.map(cat => (
             <button
               key={cat}
               className={`cat-tab ${activeCategory === cat ? 'cat-tab-active' : ''} ${cat !== 'All' ? CATEGORY_COLORS[cat] : ''}`}
               onClick={() => setActiveCategory(cat)}
+              aria-pressed={activeCategory === cat}
             >
               {cat}
               {cat !== 'All' && (
