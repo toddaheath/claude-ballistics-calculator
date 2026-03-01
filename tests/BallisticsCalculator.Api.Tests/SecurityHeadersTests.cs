@@ -46,4 +46,13 @@ public class SecurityHeadersTests : IClassFixture<CustomWebApplicationFactory>
         response.Headers.Should().ContainKey("Permissions-Policy");
         response.Headers.GetValues("Permissions-Policy").Should().Contain("camera=(), microphone=(), geolocation=()");
     }
+
+    [Fact]
+    public async Task Response_ContainsContentSecurityPolicy()
+    {
+        var response = await _client.GetAsync("/api/v1/cartridges");
+
+        response.Headers.Should().ContainKey("Content-Security-Policy");
+        response.Headers.GetValues("Content-Security-Policy").Should().Contain("default-src 'none'; frame-ancestors 'none'");
+    }
 }
