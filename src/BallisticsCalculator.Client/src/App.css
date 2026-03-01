@@ -240,15 +240,17 @@ main {
   border-collapse: collapse;
 }
 
-.trajectory-info td {
+.trajectory-info td,
+.trajectory-info th {
   padding: 6px 12px;
   border-bottom: 1px solid #eee;
 }
 
-.trajectory-info td:first-child {
+.trajectory-info th[scope="row"] {
   font-weight: 600;
   width: 200px;
   color: #555;
+  text-align: left;
 }
 
 /* ── Auth Pages ── */
