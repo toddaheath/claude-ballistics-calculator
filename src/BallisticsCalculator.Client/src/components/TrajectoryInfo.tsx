@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import type { TrajectoryResponse, EnvironmentSettings, MpbrResponse } from '../types';
 import { downloadDopeCard, calculateMpbr } from '../services/api';
 
@@ -9,7 +9,7 @@ interface Props {
   maxRange: number;
 }
 
-export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
+function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState(false);
   const [mpbr, setMpbr] = useState<MpbrResponse | null>(null);
@@ -96,11 +96,14 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
 
   // Build drop table at key intervals:
   // every 50 out to 500, then every 100 beyond that
-  const dropTablePoints = data.points.filter((p) => {
-    if (p.range === 0) return false;
-    if (p.range <= 500) return p.range % 50 === 0;
-    return p.range % 100 === 0;
-  });
+  const dropTablePoints = useMemo(
+    () => data.points.filter((p) => {
+      if (p.range === 0) return false;
+      if (p.range <= 500) return p.range % 50 === 0;
+      return p.range % 100 === 0;
+    }),
+    [data.points]
+  );
 
   return (
     <div className="trajectory-info">
@@ -250,3 +253,5 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
     </div>
   );
 }
+
+export default memo(TrajectoryInfo);
