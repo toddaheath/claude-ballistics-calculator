@@ -191,7 +191,7 @@ main {
 .loading {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: #555;
   font-style: italic;
 }
 
@@ -226,7 +226,7 @@ main {
 
 .range-presets-label {
   font-size: 0.82rem;
-  color: #666;
+  color: #555;
   margin-right: 2px;
   white-space: nowrap;
 }
@@ -413,7 +413,7 @@ main {
   border-top: 1px solid #e0e0e0;
   text-align: center;
   font-size: 0.8rem;
-  color: #999;
+  color: #767676;
 }
 
 /* ── Environment Panel ── */
@@ -504,7 +504,7 @@ main {
 
 .env-hint {
   font-size: 0.72rem;
-  color: #666;
+  color: #555;
   margin-top: 2px;
 }
 
