@@ -63,6 +63,6 @@ deploy/
 
 ## Test Counts
 
-- Backend: 168 tests (104 Core + 64 API)
-- Frontend: 98 tests (Vitest — 12 test suites)
-- Total: 266 tests
+- Backend: 187 tests (104 Core + 83 API)
+- Frontend: 147 tests (Vitest — 16 test suites)
+- Total: 334 tests
