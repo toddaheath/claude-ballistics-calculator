@@ -140,6 +140,7 @@ export default function CartridgeReference() {
           {CATEGORIES.map(cat => (
             <button
               key={cat}
+              type="button"
               className={`cat-tab ${activeCategory === cat ? 'cat-tab-active' : ''} ${cat !== 'All' ? CATEGORY_COLORS[cat] : ''}`}
               onClick={() => setActiveCategory(cat)}
               aria-pressed={activeCategory === cat}
@@ -193,6 +194,7 @@ export default function CartridgeReference() {
                 </td>
                 <td>
                   <button
+                    type="button"
                     className="bullet-type-btn"
                     onClick={() => setSelectedBulletType(c.bulletType === selectedBulletType ? null : c.bulletType)}
                     title="Click to see bullet type description"
@@ -221,7 +223,7 @@ export default function CartridgeReference() {
 
       {selectedBulletType && BULLET_TYPE_GLOSSARY[selectedBulletType] && (
         <div className="bullet-popover" role="dialog" aria-label={`${selectedBulletType} bullet type description`}>
-          <button className="popover-close" onClick={() => setSelectedBulletType(null)} aria-label="Close popover">×</button>
+          <button type="button" className="popover-close" onClick={() => setSelectedBulletType(null)} aria-label="Close popover">×</button>
           <strong>{selectedBulletType}</strong>
           <p>{BULLET_TYPE_GLOSSARY[selectedBulletType]}</p>
         </div>

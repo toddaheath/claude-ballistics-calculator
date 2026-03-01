@@ -110,6 +110,7 @@ export default function CustomCartridgePage() {
         </div>
 
         <button
+          type="button"
           className="compare-btn"
           onClick={handleCalculate}
           disabled={loading}

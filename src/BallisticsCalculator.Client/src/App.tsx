@@ -40,7 +40,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { hasError
         <div className="error" role="alert" style={{ textAlign: 'center', padding: '2rem' }}>
           <h2>{this.state.isChunkError ? 'Failed to load page.' : 'Something went wrong.'}</h2>
           <p>{this.state.isChunkError ? 'Check your network connection and try again.' : 'An unexpected error occurred.'}</p>
-          <button onClick={() => window.location.reload()}>Reload</button>
+          <button type="button" onClick={() => window.location.reload()}>Reload</button>
         </div>
       );
     }
@@ -189,7 +189,7 @@ function NavAuth() {
     return (
       <div className="nav-user">
         <span className="nav-user-email">{user.email}</span>
-        <button className="nav-logout-btn" onClick={logout}>Logout</button>
+        <button type="button" className="nav-logout-btn" onClick={logout}>Logout</button>
       </div>
     );
   }

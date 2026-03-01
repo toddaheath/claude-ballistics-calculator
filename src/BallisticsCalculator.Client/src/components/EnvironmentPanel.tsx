@@ -16,6 +16,7 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
   return (
     <div className="environment-panel">
       <button
+        type="button"
         className="environment-toggle"
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
