@@ -209,6 +209,7 @@ function AppLayout() {
   return (
     <HashRouter>
       <div className="app">
+        <a href="#main-content" className="skip-to-content">Skip to content</a>
         {isDemoMode && (
           <div className="demo-banner">
             Demo Mode — showing sample data. Deploy the full stack for live calculations.
@@ -238,7 +239,7 @@ function AppLayout() {
           </nav>
         </header>
 
-        <main>
+        <main id="main-content">
           <Suspense fallback={<div className="loading" role="status" aria-live="polite">Loading...</div>}>
             <Routes>
               <Route path="/" element={<ProtectedRoute><Calculator /></ProtectedRoute>} />
