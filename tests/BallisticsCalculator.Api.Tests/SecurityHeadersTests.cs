@@ -37,4 +37,13 @@ public class SecurityHeadersTests : IClassFixture<CustomWebApplicationFactory>
         response.Headers.Should().ContainKey("Referrer-Policy");
         response.Headers.GetValues("Referrer-Policy").Should().Contain("strict-origin-when-cross-origin");
     }
+
+    [Fact]
+    public async Task Response_ContainsPermissionsPolicy()
+    {
+        var response = await _client.GetAsync("/api/v1/cartridges");
+
+        response.Headers.Should().ContainKey("Permissions-Policy");
+        response.Headers.GetValues("Permissions-Policy").Should().Contain("camera=(), microphone=(), geolocation=()");
+    }
 }
