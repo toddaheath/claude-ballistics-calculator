@@ -11,15 +11,20 @@ interface Props {
 
 export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
   const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState(false);
   const [mpbr, setMpbr] = useState<MpbrResponse | null>(null);
   const [mpbrLoading, setMpbrLoading] = useState(false);
+  const [mpbrError, setMpbrError] = useState(false);
 
   useEffect(() => {
     setMpbr(null);
+    setMpbrError(false);
+    setDownloadError(false);
   }, [cartridgeId]);
 
   const handleCalculateMpbr = async () => {
     setMpbrLoading(true);
+    setMpbrError(false);
     try {
       const result = await calculateMpbr({
         cartridgeId,
@@ -30,7 +35,7 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
       });
       setMpbr(result);
     } catch {
-      // Silently fail
+      setMpbrError(true);
     } finally {
       setMpbrLoading(false);
     }
@@ -38,6 +43,7 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
 
   const handleDownloadDope = async () => {
     setDownloading(true);
+    setDownloadError(false);
     try {
       const blob = await downloadDopeCard({
         cartridgeId,
@@ -62,7 +68,7 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      // Silently fail — user can retry
+      setDownloadError(true);
     } finally {
       setDownloading(false);
     }
@@ -158,6 +164,9 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
 
       <div className="mpbr-section">
         <h3 style={{ marginTop: 24 }}>Maximum Point-Blank Range</h3>
+        {mpbrError && (
+          <div className="error" role="alert">Failed to calculate MPBR. Please try again.</div>
+        )}
         {!mpbr ? (
           <button
             className="mpbr-calc-btn"
@@ -225,13 +234,18 @@ export default function TrajectoryInfo({ data, settings, cartridgeId, maxRange }
       )}
 
       {cartridgeId !== 0 && (
-        <button
-          className="dope-download-btn"
-          onClick={handleDownloadDope}
-          disabled={downloading}
-        >
-          {downloading ? 'Downloading...' : 'Download DOPE Card'}
-        </button>
+        <>
+          {downloadError && (
+            <div className="error" role="alert" style={{ marginTop: 12 }}>Failed to download DOPE card. Please try again.</div>
+          )}
+          <button
+            className="dope-download-btn"
+            onClick={handleDownloadDope}
+            disabled={downloading}
+          >
+            {downloading ? 'Downloading...' : 'Download DOPE Card'}
+          </button>
+        </>
       )}
     </div>
   );
