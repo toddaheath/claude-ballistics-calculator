@@ -100,4 +100,28 @@ public class UnitConverterTests
         var result = UnitConverter.JoulesToFootPounds(UnitConverter.FootPoundsToJoules(original));
         result.Should().BeApproximately(original, 0.01);
     }
+
+    [Theory]
+    [InlineData(60, 96.56)]
+    [InlineData(0, 0)]
+    public void MphToKph_ConvertsCorrectly(double mph, double expectedKph)
+    {
+        UnitConverter.MphToKph(mph).Should().BeApproximately(expectedKph, 0.1);
+    }
+
+    [Theory]
+    [InlineData(96.56, 60)]
+    [InlineData(0, 0)]
+    public void KphToMph_ConvertsCorrectly(double kph, double expectedMph)
+    {
+        UnitConverter.KphToMph(kph).Should().BeApproximately(expectedMph, 0.1);
+    }
+
+    [Fact]
+    public void MphToKph_RoundTrip_ReturnsOriginal()
+    {
+        double original = 10.0;
+        var result = UnitConverter.KphToMph(UnitConverter.MphToKph(original));
+        result.Should().BeApproximately(original, 0.001);
+    }
 }

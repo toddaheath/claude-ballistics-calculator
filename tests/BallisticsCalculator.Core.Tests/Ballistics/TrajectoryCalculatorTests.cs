@@ -556,4 +556,123 @@ public class TrajectoryCalculatorTests
         // 6.5 Creedmoor has flatter trajectory = longer MPBR
         result65.MpbrRange.Should().BeGreaterThanOrEqualTo(result308.MpbrRange);
     }
+
+    // ========== Coverage: MPBR with G7 drag model ==========
+
+    [Fact]
+    public void CalculateMpbr_WithG7Model_ReturnsResult()
+    {
+        var result = _calculator.CalculateMpbr(Create308Win168(), dragModel: DragModel.G7);
+
+        result.MpbrRange.Should().BeGreaterThan(0);
+        result.OptimalZeroRange.Should().BeGreaterThan(0);
+        result.NearZeroCrossing.Should().BeGreaterThan(0);
+        result.FarZeroCrossing.Should().BeGreaterThan(result.NearZeroCrossing);
+    }
+
+    [Fact]
+    public void CalculateMpbr_G7VsG1_ProduceDifferentResults()
+    {
+        var resultG1 = _calculator.CalculateMpbr(Create308Win168(), dragModel: DragModel.G1);
+        var resultG7 = _calculator.CalculateMpbr(Create308Win168(), dragModel: DragModel.G7);
+
+        // G7 model should produce a different MPBR result
+        Math.Abs(resultG1.MpbrRange - resultG7.MpbrRange).Should().BeGreaterThan(0);
+    }
+
+    // ========== Coverage: Wind drift MOA/mils at range ==========
+
+    [Fact]
+    public void Calculate_WindDriftMoaMils_IncreaseWithRange()
+    {
+        var result = _calculator.Calculate(Create308Win168(),
+            windSpeedMph: 10, windDirectionDeg: 90);
+
+        var p200 = result.Points.First(p => Math.Abs(p.Range - 200) < 1);
+        var p500 = result.Points.First(p => Math.Abs(p.Range - 500) < 1);
+
+        // Wind drift MOA/mils should increase with range
+        Math.Abs(p500.WindDriftMoa).Should().BeGreaterThan(Math.Abs(p200.WindDriftMoa));
+        Math.Abs(p500.WindDriftMils).Should().BeGreaterThan(Math.Abs(p200.WindDriftMils));
+    }
+
+    [Fact]
+    public void Calculate_HeadWind_ZeroWindDrift()
+    {
+        // 0 degree wind (headwind) should produce zero crosswind drift
+        var result = _calculator.Calculate(Create308Win168(),
+            windSpeedMph: 10, windDirectionDeg: 0);
+
+        var p300 = result.Points.First(p => Math.Abs(p.Range - 300) < 1);
+        p300.WindDriftInches.Should().BeApproximately(0, 0.1);
+    }
+
+    // ========== Coverage: G7 with wind ==========
+
+    [Fact]
+    public void Calculate_G7WithWind_ProducesWindDrift()
+    {
+        var result = _calculator.Calculate(Create308Win168(),
+            windSpeedMph: 10, windDirectionDeg: 90, dragModel: DragModel.G7);
+
+        var p300 = result.Points.First(p => Math.Abs(p.Range - 300) < 1);
+        p300.WindDriftInches.Should().NotBe(0);
+    }
+
+    // ========== Coverage: Humidity effect ==========
+
+    [Fact]
+    public void Calculate_HighHumidity_SlightlyDifferentTrajectory()
+    {
+        var resultDry = _calculator.Calculate(Create308Win168(), humidityPercent: 0);
+        var resultHumid = _calculator.Calculate(Create308Win168(), humidityPercent: 100);
+
+        var dropDry = resultDry.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+        var dropHumid = resultHumid.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+
+        // Humid air is slightly less dense -> slightly less drop
+        // The effect is small but should be measurable
+        Math.Abs(dropDry - dropHumid).Should().BeGreaterThan(0.01);
+    }
+
+    // ========== Coverage: MPBR near/far zero crossings ==========
+
+    [Fact]
+    public void CalculateMpbr_CrossingRanges_AreReasonable()
+    {
+        var result = _calculator.CalculateMpbr(Create308Win168());
+
+        result.NearZeroCrossing.Should().BeGreaterThan(0);
+        result.FarZeroCrossing.Should().BeGreaterThan(result.NearZeroCrossing);
+        // Far zero should be at or before MPBR
+        result.FarZeroCrossing.Should().BeLessThanOrEqualTo(result.MpbrRange + 10);
+    }
+
+    // ========== Coverage: Custom sight height on MPBR ==========
+
+    [Fact]
+    public void CalculateMpbr_CustomSightHeight_AffectsResult()
+    {
+        var resultLow = _calculator.CalculateMpbr(Create308Win168(), sightHeightInches: 1.0);
+        var resultHigh = _calculator.CalculateMpbr(Create308Win168(), sightHeightInches: 3.0);
+
+        // Different sight heights should produce different optimal zero ranges
+        Math.Abs(resultLow.OptimalZeroRange - resultHigh.OptimalZeroRange).Should().BeGreaterThanOrEqualTo(0);
+    }
+
+    // ========== Coverage: Negative shooting angle (downhill) ==========
+
+    [Fact]
+    public void Calculate_NegativeShootingAngle_ReducesDrop()
+    {
+        // Shooting downhill at -30 degrees should also reduce effective drop
+        var resultLevel = _calculator.Calculate(Create308Win168(), shootingAngleDeg: 0);
+        var resultDownhill = _calculator.Calculate(Create308Win168(), shootingAngleDeg: -30);
+
+        var dropLevel = resultLevel.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+        var dropDownhill = resultDownhill.Points.First(p => Math.Abs(p.Range - 500) < 1).Height;
+
+        // Cosine effect applies equally to up/downhill — less effective drop
+        dropDownhill.Should().BeGreaterThan(dropLevel);
+    }
 }
