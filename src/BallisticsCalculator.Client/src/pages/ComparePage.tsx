@@ -213,10 +213,11 @@ export default function ComparePage() {
               </YAxis>
               <Tooltip
                 contentStyle={{ fontSize: 13, borderRadius: 6 }}
-                formatter={(value: number, name: string) => {
-                  const idx = parseInt(name.replace('height_', ''), 10);
-                  const label = cartridgeNames[idx] ?? name;
-                  return [`${value.toFixed(2)} ${heightUnit}`, label];
+                formatter={(value: number | undefined, name: string | undefined) => {
+                  const n = name ?? '';
+                  const idx = parseInt(n.replace('height_', ''), 10);
+                  const label = cartridgeNames[idx] ?? n;
+                  return [`${(value ?? 0).toFixed(2)} ${heightUnit}`, label];
                 }}
                 labelFormatter={(label) => `Range: ${Number(label).toFixed(0)} ${unit}`}
               />

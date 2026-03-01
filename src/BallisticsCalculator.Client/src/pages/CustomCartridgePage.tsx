@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import TrajectoryChart from '../components/TrajectoryChart';
 import TrajectoryInfo from '../components/TrajectoryInfo';
+import UnitToggle from '../components/UnitToggle';
 import { calculateCustomTrajectory } from '../services/api';
 import type { EnvironmentSettings, TrajectoryResponse, UnitSystem } from '../types';
 
@@ -102,6 +103,10 @@ export default function CustomCartridgePage() {
             <label htmlFor="custom-range">Max Range</label>
             <input id="custom-range" type="number" min={10} max={3000} step={50} value={maxRange} onChange={(e) => setMaxRange(Number(e.target.value))} />
           </div>
+        </div>
+
+        <div style={{ marginTop: 12 }}>
+          <UnitToggle unitSystem={unitSystem} onChange={setUnitSystem} />
         </div>
 
         <button
