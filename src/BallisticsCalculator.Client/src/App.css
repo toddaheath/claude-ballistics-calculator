@@ -742,7 +742,14 @@ main {
 .auth-submit:focus-visible,
 .environment-toggle:focus-visible,
 .mpbr-calc-btn:focus-visible,
-.dope-download-btn:focus-visible {
+.dope-download-btn:focus-visible,
+.cartridge-selector select:focus-visible,
+.compare-selector select:focus-visible,
+.env-field select:focus-visible,
+.env-field input:focus-visible,
+.custom-cartridge-form select:focus-visible,
+.custom-cartridge-form input:focus-visible,
+.auth-field input:focus-visible {
   outline: 2px solid #2980b9;
   outline-offset: 2px;
 }
