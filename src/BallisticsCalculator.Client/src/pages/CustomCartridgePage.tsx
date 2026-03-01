@@ -70,27 +70,27 @@ export default function CustomCartridgePage() {
         <div className="custom-form-grid">
           <div className="env-field">
             <label htmlFor="custom-name">Load Name</label>
-            <input id="custom-name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+            <input id="custom-name" type="text" value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-weight">Bullet Weight (gr)</label>
-            <input id="custom-weight" type="number" min={10} max={1000} value={bulletWeight} onChange={(e) => setBulletWeight(Number(e.target.value))} />
+            <input id="custom-weight" type="number" min={10} max={1000} value={bulletWeight} onChange={(e) => setBulletWeight(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-mv">Muzzle Velocity (fps)</label>
-            <input id="custom-mv" type="number" min={100} max={5000} value={muzzleVelocity} onChange={(e) => setMuzzleVelocity(Number(e.target.value))} />
+            <input id="custom-mv" type="number" min={100} max={5000} value={muzzleVelocity} onChange={(e) => setMuzzleVelocity(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-bc">Ballistic Coefficient</label>
-            <input id="custom-bc" type="number" min={0.01} max={2.0} step={0.001} value={bc} onChange={(e) => setBc(Number(e.target.value))} />
+            <input id="custom-bc" type="number" min={0.01} max={2.0} step={0.001} value={bc} onChange={(e) => setBc(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-diameter">Bullet Diameter (in)</label>
-            <input id="custom-diameter" type="number" min={0.1} max={1.0} step={0.001} value={bulletDiameter} onChange={(e) => setBulletDiameter(Number(e.target.value))} />
+            <input id="custom-diameter" type="number" min={0.1} max={1.0} step={0.001} value={bulletDiameter} onChange={(e) => setBulletDiameter(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-type">Bullet Type</label>
-            <input id="custom-type" type="text" value={bulletType} onChange={(e) => setBulletType(e.target.value)} />
+            <input id="custom-type" type="text" value={bulletType} onChange={(e) => setBulletType(e.target.value)} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-drag">Drag Model</label>
@@ -101,7 +101,7 @@ export default function CustomCartridgePage() {
           </div>
           <div className="env-field">
             <label htmlFor="custom-range">Max Range</label>
-            <input id="custom-range" type="number" min={10} max={3000} step={50} value={maxRange} onChange={(e) => setMaxRange(Number(e.target.value))} />
+            <input id="custom-range" type="number" min={10} max={3000} step={50} value={maxRange} onChange={(e) => setMaxRange(Number(e.target.value))} autoComplete="off" />
           </div>
         </div>
 
