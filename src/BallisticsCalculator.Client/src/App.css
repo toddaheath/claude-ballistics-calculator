@@ -393,6 +393,17 @@ main {
   border-color: #e0b0b0;
 }
 
+/* ── Footer ── */
+
+.site-footer {
+  margin-top: 48px;
+  padding: 16px 0;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #999;
+}
+
 /* ── Environment Panel ── */
 
 .environment-panel {

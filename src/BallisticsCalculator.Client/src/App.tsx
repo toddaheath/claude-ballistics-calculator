@@ -253,6 +253,10 @@ function AppLayout() {
             </Routes>
           </Suspense>
         </main>
+
+        <footer className="site-footer">
+          <p>Ballistics Calculator &mdash; RK4 trajectory engine with G1/G7 drag models</p>
+        </footer>
       </div>
     </HashRouter>
   );
