@@ -171,6 +171,7 @@ export default function CartridgeReference() {
 
       <div className="ref-table-wrap">
         <table className="ref-table">
+          <caption className="sr-only">Ballistic data for all cartridges in the database</caption>
           <thead>
             <tr>
               <th scope="col">Cartridge</th>
