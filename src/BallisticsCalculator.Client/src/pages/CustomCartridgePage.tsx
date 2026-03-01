@@ -74,11 +74,11 @@ export default function CustomCartridgePage() {
           </div>
           <div className="env-field">
             <label htmlFor="custom-weight">Bullet Weight (gr)</label>
-            <input id="custom-weight" type="number" min={10} max={1000} value={bulletWeight} onChange={(e) => setBulletWeight(Number(e.target.value))} autoComplete="off" />
+            <input id="custom-weight" type="number" min={10} max={1000} step={1} value={bulletWeight} onChange={(e) => setBulletWeight(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-mv">Muzzle Velocity (fps)</label>
-            <input id="custom-mv" type="number" min={100} max={5000} value={muzzleVelocity} onChange={(e) => setMuzzleVelocity(Number(e.target.value))} autoComplete="off" />
+            <input id="custom-mv" type="number" min={100} max={5000} step={10} value={muzzleVelocity} onChange={(e) => setMuzzleVelocity(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
             <label htmlFor="custom-bc">Ballistic Coefficient</label>
