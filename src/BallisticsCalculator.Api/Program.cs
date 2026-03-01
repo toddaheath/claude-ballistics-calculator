@@ -104,12 +104,14 @@ builder.Services.AddCors(options =>
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<BallisticsDbContext>();
 
-// Rate limiting — protect auth endpoints from brute-force / credential stuffing
+// Rate limiting — protect endpoints from abuse
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
     var disableRateLimiting = builder.Configuration.GetValue<bool>("DisableRateLimiting");
+
+    // Auth: tight limit to prevent brute-force / credential stuffing
     options.AddPolicy("auth", context =>
         disableRateLimiting
             ? RateLimitPartition.GetNoLimiter("disabled")
@@ -118,6 +120,19 @@ builder.Services.AddRateLimiter(options =>
                 factory: _ => new FixedWindowRateLimiterOptions
                 {
                     PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0
+                }));
+
+    // API: higher limit for trajectory calculations (behind auth, but CPU-intensive)
+    options.AddPolicy("api", context =>
+        disableRateLimiting
+            ? RateLimitPartition.GetNoLimiter("disabled")
+            : RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 60,
                     Window = TimeSpan.FromMinutes(1),
                     QueueLimit = 0
                 }));
