@@ -45,7 +45,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
-    public async Task Register_DuplicateEmail_Returns409()
+    public async Task Register_DuplicateEmail_Returns409WithMessage()
     {
         var request = new RegisterRequestDto { Email = "duplicate@example.com", Password = "Password1!" };
         await _client.PostAsJsonAsync("/api/v1/auth/register", request);
@@ -53,6 +53,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
         var response = await _client.PostAsJsonAsync("/api/v1/auth/register", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("Email already registered");
     }
 
     [Fact]
@@ -80,7 +82,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
     }
 
     [Fact]
-    public async Task Login_WrongPassword_Returns401()
+    public async Task Login_WrongPassword_Returns401WithMessage()
     {
         var email = "wrongpass@example.com";
         await _client.PostAsJsonAsync("/api/v1/auth/register", new RegisterRequestDto { Email = email, Password = "Password1!" });
@@ -88,6 +90,8 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
         var response = await _client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequestDto { Email = email, Password = "WrongPassword!" });
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("Invalid email or password");
     }
 
     [Fact]
