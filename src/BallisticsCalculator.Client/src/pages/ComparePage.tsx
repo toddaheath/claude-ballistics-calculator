@@ -124,6 +124,7 @@ export default function ComparePage() {
               id={`compare-select-${index}`}
               value={id ?? ''}
               onChange={(e) => handleSelectorChange(index, e.target.value ? Number(e.target.value) : null)}
+              disabled={cartridges.length === 0}
             >
               <option value="">-- Choose a load --</option>
               {categoryOrder.map((cat) =>
