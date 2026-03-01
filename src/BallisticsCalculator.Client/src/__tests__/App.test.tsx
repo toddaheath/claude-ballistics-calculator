@@ -1,6 +1,23 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Cartridge, TrajectoryResponse, TrajectoryPoint } from '../types';
+
+// Mock recharts (used by TrajectoryChart)
+vi.mock('recharts', () => ({
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  LineChart: ({ children }: { children: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
+  Line: () => <div />,
+  XAxis: () => <div />,
+  YAxis: () => <div />,
+  CartesianGrid: () => <div />,
+  Tooltip: () => <div />,
+  Legend: () => <div />,
+  Label: () => <div />,
+  ReferenceLine: () => <div />,
+  ReferenceDot: () => <div />,
+  ReferenceArea: () => <div />,
+}));
 
 // Mock all lazy-loaded pages
 vi.mock('../pages/CartridgeReference', () => ({
@@ -17,12 +34,30 @@ vi.mock('../pages/CustomCartridgePage', () => ({
 }));
 
 // Mock API service
+const mockGetCartridges = vi.fn().mockResolvedValue([]);
+const mockCalculateTrajectory = vi.fn();
 vi.mock('../services/api', () => ({
-  getCartridges: vi.fn().mockResolvedValue([]),
-  calculateTrajectory: vi.fn(),
+  getCartridges: (...args: unknown[]) => mockGetCartridges(...args),
+  calculateTrajectory: (...args: unknown[]) => mockCalculateTrajectory(...args),
   loginUser: vi.fn(),
   registerUser: vi.fn(),
 }));
+
+const sampleCartridges: Cartridge[] = [
+  { id: 29, name: '.308 Win 168gr BTHP', category: 'Standard Rifle', bulletType: 'BTHP', bulletWeightGrains: 168, muzzleVelocityFps: 2680, ballisticCoefficientG1: 0.462 },
+  { id: 30, name: '.308 Win 175gr SMK', category: 'Standard Rifle', bulletType: 'SMK', bulletWeightGrains: 175, muzzleVelocityFps: 2610, ballisticCoefficientG1: 0.505 },
+];
+
+function makePoint(range: number): TrajectoryPoint {
+  return { range, height: -range * 0.01, velocity: 2680 - range * 2, energy: 2500 - range * 3, timeOfFlight: range * 0.001, mach: 2.4 - range * 0.001, drop: -range * 0.02, windDriftInches: range * 0.005, dropMoa: range * 0.01, dropMils: range * 0.003, windDriftMoa: range * 0.005, windDriftMils: range * 0.0015, isTransonic: false };
+}
+
+const sampleTrajectory: TrajectoryResponse = {
+  points: [makePoint(0), makePoint(50), makePoint(100), makePoint(150)],
+  zeroRange: 100, muzzleVelocity: 2680, maxRange: 150, cartridgeName: '.308 Win 168gr BTHP',
+  boreElevationAngleMOA: 3.5, heightAt50: 0.8, secondCrossingRange: 100, shotHeight: 30,
+  unitSystem: 'yards', transonicRange: 900, dragModel: 'G1',
+};
 
 // localStorage mock for AuthContext
 const storageMock = (() => {
@@ -125,6 +160,124 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Trajectory Calculator')).toBeInTheDocument();
+    });
+  });
+});
+
+describe('Calculator', () => {
+  function authenticateUser() {
+    storageMock.setItem('auth_user', JSON.stringify({
+      userId: 1, email: 'calc@test.com', token: 'test-token',
+    }));
+  }
+
+  beforeEach(() => {
+    storageMock.clear();
+    vi.clearAllMocks();
+    window.location.hash = '';
+    mockGetCartridges.mockResolvedValue(sampleCartridges);
+  });
+
+  it('loads and displays cartridges in the selector', async () => {
+    authenticateUser();
+    render(<App />);
+
+    await waitFor(() => {
+      expect(mockGetCartridges).toHaveBeenCalled();
+    });
+
+    const select = screen.getByLabelText('Select Cartridge:');
+    expect(select).toBeInTheDocument();
+    expect(select).toHaveValue('');
+    expect(screen.getByText('.308 Win 168gr BTHP (168gr BTHP)')).toBeInTheDocument();
+    expect(screen.getByText('.308 Win 175gr SMK (175gr SMK)')).toBeInTheDocument();
+  });
+
+  it('fetches trajectory when a cartridge is selected', async () => {
+    authenticateUser();
+    mockCalculateTrajectory.mockResolvedValue(sampleTrajectory);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Select Cartridge:')).toBeInTheDocument();
+    });
+
+    await user.selectOptions(screen.getByLabelText('Select Cartridge:'), '29');
+
+    await waitFor(() => {
+      expect(mockCalculateTrajectory).toHaveBeenCalledWith(
+        expect.objectContaining({ cartridgeId: 29, unitSystem: 'yards' })
+      );
+    });
+  });
+
+  it('displays trajectory data after calculation', async () => {
+    authenticateUser();
+    mockCalculateTrajectory.mockResolvedValue(sampleTrajectory);
+    const user = userEvent.setup();
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Select Cartridge:')).toBeInTheDocument();
+    });
+
+    await user.selectOptions(screen.getByLabelText('Select Cartridge:'), '29');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error when trajectory calculation fails', async () => {
+    authenticateUser();
+    mockCalculateTrajectory.mockRejectedValue(new Error('API error'));
+    const user = userEvent.setup();
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Select Cartridge:')).toBeInTheDocument();
+    });
+
+    await user.selectOptions(screen.getByLabelText('Select Cartridge:'), '29');
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Failed to calculate trajectory');
+    });
+  });
+
+  it('shows error when cartridge loading fails', async () => {
+    authenticateUser();
+    mockGetCartridges.mockRejectedValue(new Error('Network error'));
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Failed to load cartridges');
+    });
+  });
+
+  it('shows loading state during calculation', async () => {
+    authenticateUser();
+    // Make calculateTrajectory hang until we resolve it
+    let resolveCalc!: (v: TrajectoryResponse) => void;
+    mockCalculateTrajectory.mockReturnValue(new Promise<TrajectoryResponse>(r => { resolveCalc = r; }));
+    const user = userEvent.setup();
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Select Cartridge:')).toBeInTheDocument();
+    });
+
+    await user.selectOptions(screen.getByLabelText('Select Cartridge:'), '29');
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Calculating trajectory...');
+    });
+
+    // Resolve and verify loading clears
+    resolveCalc(sampleTrajectory);
+    await waitFor(() => {
+      expect(screen.queryByText('Calculating trajectory...')).not.toBeInTheDocument();
     });
   });
 });
