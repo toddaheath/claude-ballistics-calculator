@@ -52,8 +52,9 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
                   step={15}
                   value={settings.windDirectionDeg}
                   onChange={(e) => update({ windDirectionDeg: Number(e.target.value) })}
+                  aria-describedby="wind-dir-hint"
                 />
-                <span className="env-hint">0&deg;=head, 90&deg;=right, 180&deg;=tail, 270&deg;=left</span>
+                <span id="wind-dir-hint" className="env-hint">0&deg;=head, 90&deg;=right, 180&deg;=tail, 270&deg;=left</span>
               </div>
             </div>
           </div>
