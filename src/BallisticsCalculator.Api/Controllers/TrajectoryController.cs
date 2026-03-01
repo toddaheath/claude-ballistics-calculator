@@ -5,6 +5,7 @@ using BallisticsCalculator.Core.Interfaces;
 using BallisticsCalculator.Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace BallisticsCalculator.Api.Controllers;
 
@@ -12,6 +13,7 @@ namespace BallisticsCalculator.Api.Controllers;
 [Authorize]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[EnableRateLimiting("api")]
 public class TrajectoryController : ControllerBase
 {
     private readonly ICartridgeRepository _repository;
