@@ -24,7 +24,7 @@ const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
 const DEFAULT_MAX_RANGE = 150;
 
-class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; isChunkError: boolean }> {
+export class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; isChunkError: boolean }> {
   constructor(props: { children: ReactNode }) {
     super(props);
     this.state = { hasError: false, isChunkError: false };
