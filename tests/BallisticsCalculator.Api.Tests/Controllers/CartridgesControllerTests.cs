@@ -52,11 +52,14 @@ public class CartridgesControllerTests : IClassFixture<CustomWebApplicationFacto
     }
 
     [Fact]
-    public async Task GetById_NonExistentId_Returns404()
+    public async Task GetById_NonExistentId_Returns404WithMessage()
     {
         var response = await _client.GetAsync("/api/v1/cartridges/999");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("999");
+        body.Should().Contain("not found");
     }
 
     [Fact]
