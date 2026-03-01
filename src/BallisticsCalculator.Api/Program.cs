@@ -138,6 +138,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler(error => error.Run(async context =>
 {
+    var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
+    if (exception is not null)
+        Log.Error(exception, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
+
     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
     context.Response.ContentType = "application/json";
     await context.Response.WriteAsJsonAsync(new { message = "An unexpected error occurred." });
