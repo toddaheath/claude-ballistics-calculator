@@ -793,3 +793,42 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Print ── */
+
+@media print {
+  .site-nav,
+  .skip-to-content,
+  .demo-banner,
+  .environment-panel,
+  .controls,
+  .compare-actions,
+  .compare-selectors,
+  .range-presets,
+  .mpbr-calc-btn,
+  .dope-download-btn,
+  .auth-page,
+  .site-footer,
+  .nav-user {
+    display: none !important;
+  }
+
+  .app {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  header {
+    border-bottom: 1px solid #000;
+    margin-bottom: 1rem;
+  }
+
+  .trajectory-chart {
+    break-inside: avoid;
+  }
+
+  .drop-table,
+  .ref-table {
+    font-size: 10pt;
+  }
+}
