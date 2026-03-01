@@ -151,6 +151,11 @@ main {
   min-width: 300px;
 }
 
+.cartridge-selector select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .unit-toggle {
   display: flex;
   gap: 0;
