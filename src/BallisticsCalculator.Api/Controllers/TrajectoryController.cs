@@ -30,7 +30,7 @@ public class TrajectoryController : ControllerBase
         if (cartridge is null)
             return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
 
-        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+        var dragModel = ParseDragModel(request.DragModel);
 
         double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
         double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
@@ -76,7 +76,7 @@ public class TrajectoryController : ControllerBase
         }
 
         // Parse drag model
-        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+        var dragModel = ParseDragModel(request.DragModel);
 
         double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
         double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
@@ -124,7 +124,7 @@ public class TrajectoryController : ControllerBase
         if (cartridge is null)
             return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
 
-        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+        var dragModel = ParseDragModel(request.DragModel);
 
         double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
         double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
@@ -185,7 +185,7 @@ public class TrajectoryController : ControllerBase
         if (cartridge is null)
             return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
 
-        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+        var dragModel = ParseDragModel(request.DragModel);
         double sightHeight = request.SightHeightInches ?? BallisticConstants.DefaultSightHeightInches;
         double vitalZone = request.VitalZoneRadiusInches ?? 3.0;
         bool isMetric = request.UnitSystem?.ToLowerInvariant() == "meters";
@@ -214,14 +214,14 @@ public class TrajectoryController : ControllerBase
             Name = request.Name,
             Category = "Custom",
             BulletWeightGrains = request.BulletWeightGrains,
-            BulletWeightGrams = request.BulletWeightGrains * 0.0648, // grains to grams
+            BulletWeightGrams = request.BulletWeightGrains * BallisticConstants.GrainsToGrams,
             BulletDiameterInches = request.BulletDiameterInches ?? 0.308,
             MuzzleVelocityFps = request.MuzzleVelocityFps,
             BallisticCoefficientG1 = request.BallisticCoefficient,
             BulletType = request.BulletType ?? "Custom"
         };
 
-        var dragModel = request.DragModel?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+        var dragModel = ParseDragModel(request.DragModel);
 
         double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
         double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
@@ -252,6 +252,9 @@ public class TrajectoryController : ControllerBase
 
         return Ok(response);
     }
+
+    private static DragModel ParseDragModel(string? value) =>
+        value?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
 
     private static TrajectoryResponseDto MapToResponseDto(TrajectoryResult result, bool isMetric, double shotHeight)
     {

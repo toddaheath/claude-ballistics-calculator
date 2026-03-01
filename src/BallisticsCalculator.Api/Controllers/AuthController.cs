@@ -60,7 +60,7 @@ public class AuthController : ControllerBase
         var user = await _users.GetByEmailAsync(request.Email);
 
         // Always run BCrypt.Verify to prevent timing-based email enumeration
-        const string dummyHash = "$2a$11$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        const string dummyHash = "$2a$11$K7HQVI5bnMQKH9MYB0v5suPZFJxP5P60P/2mYCHOqZGwTq/7MR.Cq";
         var hash = user?.PasswordHash ?? dummyHash;
         var passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, hash);
 

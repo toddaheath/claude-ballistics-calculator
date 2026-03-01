@@ -49,7 +49,7 @@ public class CartridgesController : ControllerBase
     {
         var cartridge = await _repository.GetByIdAsync(id);
         if (cartridge is null)
-            return NotFound();
+            return NotFound(new { message = $"Cartridge with ID {id} not found." });
 
         return Ok(new CartridgeDto
         {
