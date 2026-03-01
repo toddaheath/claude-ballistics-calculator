@@ -11,7 +11,7 @@ export default function HowItWorks() {
         </p>
       </div>
 
-      <nav className="hiw-toc">
+      <nav className="hiw-toc" aria-label="Table of contents">
         <strong>On this page</strong>
         <ol>
           <li><a href="#setup">1. Shot Setup</a></li>
