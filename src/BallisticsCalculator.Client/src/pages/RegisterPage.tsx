@@ -47,6 +47,7 @@ export default function RegisterPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
+              maxLength={254}
               autoComplete="email"
             />
           </div>
@@ -59,6 +60,7 @@ export default function RegisterPage() {
               onChange={e => setPassword(e.target.value)}
               required
               minLength={8}
+              maxLength={72}
               autoComplete="new-password"
             />
           </div>
