@@ -175,6 +175,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
             className="mpbr-calc-btn"
             onClick={handleCalculateMpbr}
             disabled={mpbrLoading}
+            aria-busy={mpbrLoading}
           >
             {mpbrLoading ? 'Calculating...' : 'Calculate MPBR (6" vital zone)'}
           </button>
@@ -245,6 +246,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
             className="dope-download-btn"
             onClick={handleDownloadDope}
             disabled={downloading}
+            aria-busy={downloading}
           >
             {downloading ? 'Downloading...' : 'Download DOPE Card'}
           </button>

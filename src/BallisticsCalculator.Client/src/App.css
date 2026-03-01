@@ -728,7 +728,9 @@ main {
 .add-cartridge-btn:focus-visible,
 .remove-cartridge-btn:focus-visible,
 .auth-submit:focus-visible,
-.environment-toggle:focus-visible {
+.environment-toggle:focus-visible,
+.mpbr-calc-btn:focus-visible,
+.dope-download-btn:focus-visible {
   outline: 2px solid #2980b9;
   outline-offset: 2px;
 }
