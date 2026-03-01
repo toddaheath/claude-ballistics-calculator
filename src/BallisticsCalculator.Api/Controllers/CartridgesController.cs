@@ -45,6 +45,7 @@ public class CartridgesController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [ResponseCache(Duration = 3600)]
     public async Task<ActionResult<CartridgeDto>> GetById(int id)
     {
         var cartridge = await _repository.GetByIdAsync(id);
