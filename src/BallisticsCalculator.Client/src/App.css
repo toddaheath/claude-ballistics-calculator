@@ -735,6 +735,17 @@ main {
   outline-offset: 2px;
 }
 
+/* ── Reduced Motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 900px) {
