@@ -121,7 +121,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
           </tr>
           <tr>
             <th scope="row">Bore Elevation Angle</th>
-            <td>{data.boreElevationAngleMOA.toFixed(2)} MOA</td>
+            <td>{data.boreElevationAngleMOA.toFixed(2)} <abbr title="Minute of Angle">MOA</abbr></td>
           </tr>
           <tr>
             <th scope="row">Zero Range</th>
@@ -186,7 +186,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
             <caption className="sr-only">Maximum point-blank range results</caption>
             <tbody>
               <tr>
-                <th scope="row">MPBR</th>
+                <th scope="row"><abbr title="Maximum Point-Blank Range">MPBR</abbr></th>
                 <td>{mpbr.mpbrRange.toFixed(0)} {rangeUnit}</td>
               </tr>
               <tr>
@@ -219,10 +219,10 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
               <thead>
                 <tr>
                   <th scope="col">Range</th>
-                  <th scope="col">Drop (MOA)</th>
-                  <th scope="col">Drop (Mil)</th>
-                  <th scope="col">Wind (MOA)</th>
-                  <th scope="col">Wind (Mil)</th>
+                  <th scope="col">Drop (<abbr title="Minute of Angle">MOA</abbr>)</th>
+                  <th scope="col">Drop (<abbr title="Milliradian">Mil</abbr>)</th>
+                  <th scope="col">Wind (<abbr title="Minute of Angle">MOA</abbr>)</th>
+                  <th scope="col">Wind (<abbr title="Milliradian">Mil</abbr>)</th>
                 </tr>
               </thead>
               <tbody>
