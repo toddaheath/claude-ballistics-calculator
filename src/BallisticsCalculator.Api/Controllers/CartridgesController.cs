@@ -21,6 +21,7 @@ public class CartridgesController : ControllerBase
         _cache = cache;
     }
 
+    /// <summary>Get all cartridges in the database.</summary>
     [HttpGet]
     [ResponseCache(Duration = 3600)]
     [ProducesResponseType(typeof(List<CartridgeDto>), StatusCodes.Status200OK)]
@@ -45,6 +46,7 @@ public class CartridgesController : ControllerBase
         return Ok(dtos);
     }
 
+    /// <summary>Get a single cartridge by ID.</summary>
     [HttpGet("{id:int}")]
     [ResponseCache(Duration = 3600)]
     [ProducesResponseType(typeof(CartridgeDto), StatusCodes.Status200OK)]
