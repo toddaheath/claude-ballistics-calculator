@@ -23,6 +23,7 @@ export default function CartridgeSelector({ cartridges, selectedId, onSelect }: 
         id="cartridge-select"
         value={selectedId ?? ''}
         onChange={(e) => onSelect(Number(e.target.value))}
+        disabled={cartridges.length === 0}
       >
         <option value="" disabled>-- Choose a load --</option>
         {categoryOrder.map((cat) =>
