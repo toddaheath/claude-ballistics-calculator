@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense, Component } from 'react';
 import type { ReactNode, ErrorInfo } from 'react';
-import { HashRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, NavLink } from 'react-router-dom';
 import CartridgeSelector from './components/CartridgeSelector';
 import UnitToggle from './components/UnitToggle';
 import EnvironmentPanel from './components/EnvironmentPanel';
@@ -9,6 +9,7 @@ import TrajectoryInfo from './components/TrajectoryInfo';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import NotFoundPage from './pages/NotFoundPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getCartridges, calculateTrajectory } from './services/api';
 import type { Cartridge, EnvironmentSettings, TrajectoryResponse, UnitSystem } from './types';
@@ -247,7 +248,7 @@ function AppLayout() {
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </main>

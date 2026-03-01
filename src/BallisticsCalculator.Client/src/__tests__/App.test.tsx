@@ -138,6 +138,16 @@ describe('App', () => {
     });
   });
 
+  it('shows not found page for unknown routes', async () => {
+    window.location.hash = '#/nonexistent-page';
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Page Not Found')).toBeInTheDocument();
+      expect(screen.getByText('Back to Calculator')).toBeInTheDocument();
+    });
+  });
+
   it('shows user email and logout when authenticated', async () => {
     storageMock.setItem('auth_user', JSON.stringify({
       userId: 1, email: 'user@test.com', token: 'test-token',
