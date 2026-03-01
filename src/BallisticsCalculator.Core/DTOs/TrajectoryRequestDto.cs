@@ -13,6 +13,7 @@ public class TrajectoryRequestDto
     [Range(10, 3000, ErrorMessage = "MaxRange must be between 10 and 3000.")]
     public double? MaxRange { get; set; }
 
+    [RegularExpression(@"^(yards|meters)$", ErrorMessage = "UnitSystem must be 'yards' or 'meters'.")]
     public string UnitSystem { get; set; } = "yards";
 
     [Range(0, 240, ErrorMessage = "ShotHeightInches must be between 0 and 240.")]
@@ -42,5 +43,6 @@ public class TrajectoryRequestDto
     [Range(-90, 90, ErrorMessage = "ShootingAngleDeg must be between -90 and 90.")]
     public double? ShootingAngleDeg { get; set; }
 
+    [RegularExpression(@"^(G1|G7)$", ErrorMessage = "DragModel must be 'G1' or 'G7'.")]
     public string? DragModel { get; set; } // "G1" or "G7", defaults to "G1"
 }
