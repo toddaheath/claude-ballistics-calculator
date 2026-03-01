@@ -9,6 +9,7 @@ namespace BallisticsCalculator.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[Produces("application/json")]
 public class CartridgesController : ControllerBase
 {
     private readonly ICartridgeRepository _repository;

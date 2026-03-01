@@ -11,6 +11,7 @@ namespace BallisticsCalculator.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[Produces("application/json")]
 [EnableRateLimiting("auth")]
 public class AuthController : ControllerBase
 {
