@@ -143,6 +143,7 @@ app.UseExceptionHandler(error => error.Run(async context =>
     await context.Response.WriteAsJsonAsync(new { message = "An unexpected error occurred." });
 }));
 
+app.UseSerilogRequestLogging();
 app.UseCors();
 app.UseRateLimiter();
 app.UseAuthentication();
