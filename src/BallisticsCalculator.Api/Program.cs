@@ -64,6 +64,8 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "Calculate bullet trajectories using RK4 integration with G1/G7 drag models. Supports wind, altitude, temperature, and shooting angle adjustments."
     });
+    var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 // Response compression

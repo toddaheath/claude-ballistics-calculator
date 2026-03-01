@@ -25,6 +25,7 @@ public class TrajectoryController : ControllerBase
         _calculator = calculator;
     }
 
+    /// <summary>Calculate trajectory for a single cartridge.</summary>
     [HttpPost]
     [ProducesResponseType(typeof(TrajectoryResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -68,6 +69,7 @@ public class TrajectoryController : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>Compare trajectories for 2-5 cartridges.</summary>
     [HttpPost("compare")]
     [ProducesResponseType(typeof(CompareResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -128,6 +130,7 @@ public class TrajectoryController : ControllerBase
         });
     }
 
+    /// <summary>Download a DOPE card as CSV for a single cartridge.</summary>
     [HttpPost("dope-card")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -193,6 +196,7 @@ public class TrajectoryController : ControllerBase
         return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "dope-card.csv");
     }
 
+    /// <summary>Calculate maximum point-blank range for a cartridge and vital zone size.</summary>
     [HttpPost("mpbr")]
     [ProducesResponseType(typeof(MpbrResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -224,6 +228,7 @@ public class TrajectoryController : ControllerBase
         });
     }
 
+    /// <summary>Calculate trajectory for a user-defined custom cartridge (not saved to DB).</summary>
     [HttpPost("custom")]
     [ProducesResponseType(typeof(TrajectoryResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

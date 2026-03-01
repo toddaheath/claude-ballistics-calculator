@@ -23,6 +23,7 @@ public class AuthController : ControllerBase
         _jwt = jwt;
     }
 
+    /// <summary>Register a new user account.</summary>
     [HttpPost("register")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -57,6 +58,7 @@ public class AuthController : ControllerBase
         });
     }
 
+    /// <summary>Authenticate with email and password.</summary>
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,6 +89,7 @@ public class AuthController : ControllerBase
         });
     }
 
+    /// <summary>Exchange a refresh token for a new access token (token rotation).</summary>
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -118,6 +121,7 @@ public class AuthController : ControllerBase
         });
     }
 
+    /// <summary>Revoke a refresh token (logout).</summary>
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
