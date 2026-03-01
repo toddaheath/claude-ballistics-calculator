@@ -158,15 +158,17 @@ export default function ComparePage() {
             + Add Cartridge
           </button>
         )}
-        <div className="unit-toggle">
+        <div className="unit-toggle" role="group" aria-label="Select measurement units">
           <button
             className={unitSystem === 'yards' ? 'active' : ''}
+            aria-pressed={unitSystem === 'yards'}
             onClick={() => setUnitSystem('yards')}
           >
             Yards
           </button>
           <button
             className={unitSystem === 'meters' ? 'active' : ''}
+            aria-pressed={unitSystem === 'meters'}
             onClick={() => setUnitSystem('meters')}
           >
             Meters
