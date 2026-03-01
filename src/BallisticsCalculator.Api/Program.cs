@@ -56,7 +56,15 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Ballistics Calculator API",
+        Version = "v1",
+        Description = "Calculate bullet trajectories using RK4 integration with G1/G7 drag models. Supports wind, altitude, temperature, and shooting angle adjustments."
+    });
+});
 
 // Response compression
 builder.Services.AddResponseCompression();
