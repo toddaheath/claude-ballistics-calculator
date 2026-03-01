@@ -228,14 +228,14 @@ export default function CartridgeReference() {
 
       <section className="ref-glossary">
         <h3>Bullet Type Glossary</h3>
-        <div className="glossary-grid">
+        <dl className="glossary-grid">
           {bulletTypes.map(bt => (
             <div key={bt} className="glossary-item">
               <dt>{bt}</dt>
               <dd>{BULLET_TYPE_GLOSSARY[bt] ?? 'No description available.'}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       </section>
 
       <section className="ref-data-notes">
