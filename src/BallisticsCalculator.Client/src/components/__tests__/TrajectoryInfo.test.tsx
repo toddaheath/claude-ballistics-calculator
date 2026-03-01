@@ -82,7 +82,7 @@ describe('TrajectoryInfo', () => {
     expect(screen.getByText('Shot Details')).toBeInTheDocument();
     expect(screen.getByText('.308 Win 168gr BTHP')).toBeInTheDocument();
     expect(screen.getByText('2820 fps')).toBeInTheDocument();
-    expect(screen.getByText('1.43 MOA')).toBeInTheDocument();
+    expect(screen.getByText((_content, el) => el?.tagName === 'TD' && el.textContent === '1.43 MOA')).toBeInTheDocument();
     // "100 yd" appears in both Shot Details (Zero Range) and Drop Table
     expect(screen.getAllByText('100 yd').length).toBeGreaterThanOrEqual(1);
   });
@@ -239,10 +239,10 @@ describe('TrajectoryInfo', () => {
 
     expect(screen.getByText('Drop Table')).toBeInTheDocument();
     // Check headers
-    expect(screen.getByText('Drop (MOA)')).toBeInTheDocument();
-    expect(screen.getByText('Drop (Mil)')).toBeInTheDocument();
-    expect(screen.getByText('Wind (MOA)')).toBeInTheDocument();
-    expect(screen.getByText('Wind (Mil)')).toBeInTheDocument();
+    expect(screen.getByText((_content, el) => el?.tagName === 'TH' && el.textContent === 'Drop (MOA)')).toBeInTheDocument();
+    expect(screen.getByText((_content, el) => el?.tagName === 'TH' && el.textContent === 'Drop (Mil)')).toBeInTheDocument();
+    expect(screen.getByText((_content, el) => el?.tagName === 'TH' && el.textContent === 'Wind (MOA)')).toBeInTheDocument();
+    expect(screen.getByText((_content, el) => el?.tagName === 'TH' && el.textContent === 'Wind (Mil)')).toBeInTheDocument();
   });
 
   it('shows download DOPE card button for real cartridges', () => {
