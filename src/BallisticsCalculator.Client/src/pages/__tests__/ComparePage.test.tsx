@@ -72,6 +72,7 @@ describe('ComparePage', () => {
     render(<ComparePage />);
     expect(screen.getByText('Compare Trajectories')).toBeInTheDocument();
     expect(screen.getByText(/Select 2-5 cartridges/)).toBeInTheDocument();
+    await waitFor(() => expect(mockGetCartridges).toHaveBeenCalled());
   });
 
   it('renders two selector dropdowns by default', async () => {
@@ -251,6 +252,7 @@ describe('ComparePage', () => {
     render(<ComparePage />);
     expect(screen.getByText('Yards')).toBeInTheDocument();
     expect(screen.getByText('Meters')).toBeInTheDocument();
+    await waitFor(() => expect(mockGetCartridges).toHaveBeenCalled());
   });
 
   it('toggles unit system to meters', async () => {
