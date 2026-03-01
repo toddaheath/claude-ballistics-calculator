@@ -13,6 +13,7 @@ namespace BallisticsCalculator.Api.Controllers;
 [Authorize]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[Produces("application/json")]
 [EnableRateLimiting("api")]
 public class TrajectoryController : ControllerBase
 {
