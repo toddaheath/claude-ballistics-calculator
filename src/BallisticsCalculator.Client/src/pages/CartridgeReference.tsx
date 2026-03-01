@@ -177,10 +177,10 @@ export default function CartridgeReference() {
               <th scope="col">Cartridge</th>
               <th scope="col">Category</th>
               <th scope="col">Bullet Type</th>
-              <th scope="col" title="Bullet weight in grains">Weight (gr)</th>
-              <th scope="col" title="Bullet diameter in inches">Diameter (in)</th>
-              <th scope="col" title="Muzzle velocity in feet per second">MV (fps)</th>
-              <th scope="col" title="G1 Ballistic Coefficient — higher = less drag">BC G1</th>
+              <th scope="col">Weight (<abbr title="grains">gr</abbr>)</th>
+              <th scope="col">Diameter (<abbr title="inches">in</abbr>)</th>
+              <th scope="col"><abbr title="Muzzle Velocity">MV</abbr> (<abbr title="feet per second">fps</abbr>)</th>
+              <th scope="col"><abbr title="Ballistic Coefficient, G1 drag model">BC G1</abbr></th>
               <th scope="col">Notes</th>
             </tr>
           </thead>
