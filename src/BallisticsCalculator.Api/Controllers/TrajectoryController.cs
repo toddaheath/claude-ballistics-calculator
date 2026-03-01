@@ -195,6 +195,7 @@ public class TrajectoryController : ControllerBase
 
     [HttpPost("mpbr")]
     [ProducesResponseType(typeof(MpbrResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MpbrResponseDto>> CalculateMpbr([FromBody] MpbrRequestDto request)
