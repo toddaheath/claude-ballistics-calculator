@@ -25,6 +25,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterRequestDto request)
     {
@@ -58,6 +59,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginRequestDto request)
     {
@@ -87,6 +89,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshRequestDto request)
     {
@@ -117,6 +120,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Logout([FromBody] RefreshRequestDto request)
     {
         await _users.RevokeRefreshTokenAsync(request.RefreshToken);
