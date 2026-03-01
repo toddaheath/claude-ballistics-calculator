@@ -171,14 +171,14 @@ export default function CartridgeReference() {
         <table className="ref-table">
           <thead>
             <tr>
-              <th>Cartridge</th>
-              <th>Category</th>
-              <th>Bullet Type</th>
-              <th title="Bullet weight in grains">Weight (gr)</th>
-              <th title="Bullet diameter in inches">Diameter (in)</th>
-              <th title="Muzzle velocity in feet per second">MV (fps)</th>
-              <th title="G1 Ballistic Coefficient — higher = less drag">BC G1</th>
-              <th>Notes</th>
+              <th scope="col">Cartridge</th>
+              <th scope="col">Category</th>
+              <th scope="col">Bullet Type</th>
+              <th scope="col" title="Bullet weight in grains">Weight (gr)</th>
+              <th scope="col" title="Bullet diameter in inches">Diameter (in)</th>
+              <th scope="col" title="Muzzle velocity in feet per second">MV (fps)</th>
+              <th scope="col" title="G1 Ballistic Coefficient — higher = less drag">BC G1</th>
+              <th scope="col">Notes</th>
             </tr>
           </thead>
           <tbody>

@@ -111,31 +111,31 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
       <table>
         <tbody>
           <tr>
-            <td>Cartridge</td>
+            <th scope="row">Cartridge</th>
             <td>{data.cartridgeName}</td>
           </tr>
           <tr>
-            <td>Muzzle Velocity</td>
+            <th scope="row">Muzzle Velocity</th>
             <td>{data.muzzleVelocity.toFixed(0)} {velocityUnit}</td>
           </tr>
           <tr>
-            <td>Bore Elevation Angle</td>
+            <th scope="row">Bore Elevation Angle</th>
             <td>{data.boreElevationAngleMOA.toFixed(2)} MOA</td>
           </tr>
           <tr>
-            <td>Zero Range</td>
+            <th scope="row">Zero Range</th>
             <td>{data.zeroRange.toFixed(0)} {rangeUnit}</td>
           </tr>
           <tr>
-            <td>Shot Height</td>
+            <th scope="row">Shot Height</th>
             <td>{data.shotHeight.toFixed(1)} {heightUnit}</td>
           </tr>
           <tr>
-            <td>Height at 50 {rangeUnit}</td>
+            <th scope="row">Height at 50 {rangeUnit}</th>
             <td>{data.heightAt50.toFixed(2)} {heightUnit}</td>
           </tr>
           <tr>
-            <td>2nd Crossing Distance</td>
+            <th scope="row">2nd Crossing Distance</th>
             <td>
               {data.secondCrossingRange > 0
                 ? `${data.secondCrossingRange.toFixed(0)} ${rangeUnit}`
@@ -143,23 +143,23 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
             </td>
           </tr>
           <tr>
-            <td>Wind</td>
+            <th scope="row">Wind</th>
             <td>{windDisplay}</td>
           </tr>
           <tr>
-            <td>Temperature</td>
+            <th scope="row">Temperature</th>
             <td>{settings.temperatureF}&deg;F</td>
           </tr>
           <tr>
-            <td>Altitude</td>
+            <th scope="row">Altitude</th>
             <td>{settings.altitudeFt} ft</td>
           </tr>
           <tr>
-            <td>Shooting Angle</td>
+            <th scope="row">Shooting Angle</th>
             <td>{angleDisplay}</td>
           </tr>
           <tr>
-            <td>Transonic Range</td>
+            <th scope="row">Transonic Range</th>
             <td>{transonicDisplay}</td>
           </tr>
         </tbody>
@@ -182,23 +182,23 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
           <table>
             <tbody>
               <tr>
-                <td>MPBR</td>
+                <th scope="row">MPBR</th>
                 <td>{mpbr.mpbrRange.toFixed(0)} {rangeUnit}</td>
               </tr>
               <tr>
-                <td>Optimal Zero</td>
+                <th scope="row">Optimal Zero</th>
                 <td>{mpbr.optimalZeroRange.toFixed(0)} {rangeUnit}</td>
               </tr>
               <tr>
-                <td>Vital Zone</td>
+                <th scope="row">Vital Zone</th>
                 <td>&plusmn;{mpbr.vitalZoneRadiusInches.toFixed(1)} {heightUnit}</td>
               </tr>
               <tr>
-                <td>Near Zero</td>
+                <th scope="row">Near Zero</th>
                 <td>{mpbr.nearZeroCrossing.toFixed(0)} {rangeUnit}</td>
               </tr>
               <tr>
-                <td>Far Zero</td>
+                <th scope="row">Far Zero</th>
                 <td>{mpbr.farZeroCrossing.toFixed(0)} {rangeUnit}</td>
               </tr>
             </tbody>
