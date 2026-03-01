@@ -26,6 +26,9 @@ public class TrajectoryController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(TrajectoryResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TrajectoryResponseDto>> Calculate([FromBody] TrajectoryRequestDto request)
     {
         var cartridge = await _repository.GetByIdAsync(request.CartridgeId);
@@ -65,6 +68,9 @@ public class TrajectoryController : ControllerBase
     }
 
     [HttpPost("compare")]
+    [ProducesResponseType(typeof(CompareResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CompareResponseDto>> Compare([FromBody] CompareRequestDto request)
     {
         // Fetch all cartridges in a single query
@@ -121,6 +127,9 @@ public class TrajectoryController : ControllerBase
     }
 
     [HttpPost("dope-card")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DopeCard([FromBody] TrajectoryRequestDto request)
     {
         var cartridge = await _repository.GetByIdAsync(request.CartridgeId);
@@ -182,6 +191,8 @@ public class TrajectoryController : ControllerBase
     }
 
     [HttpPost("mpbr")]
+    [ProducesResponseType(typeof(MpbrResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<MpbrResponseDto>> CalculateMpbr([FromBody] MpbrRequestDto request)
     {
         var cartridge = await _repository.GetByIdAsync(request.CartridgeId);
@@ -209,6 +220,8 @@ public class TrajectoryController : ControllerBase
     }
 
     [HttpPost("custom")]
+    [ProducesResponseType(typeof(TrajectoryResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public ActionResult<TrajectoryResponseDto> CalculateCustom([FromBody] CustomCartridgeRequestDto request)
     {
         var cartridge = new Cartridge

@@ -23,6 +23,7 @@ public class CartridgesController : ControllerBase
 
     [HttpGet]
     [ResponseCache(Duration = 3600)]
+    [ProducesResponseType(typeof(List<CartridgeDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<CartridgeDto>>> GetAll()
     {
         if (_cache.TryGetValue(AllCartridgesCacheKey, out List<CartridgeDto>? cached))
@@ -46,6 +47,8 @@ public class CartridgesController : ControllerBase
 
     [HttpGet("{id:int}")]
     [ResponseCache(Duration = 3600)]
+    [ProducesResponseType(typeof(CartridgeDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CartridgeDto>> GetById(int id)
     {
         var cartridge = await _repository.GetByIdAsync(id);
