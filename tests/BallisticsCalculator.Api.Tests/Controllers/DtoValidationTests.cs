@@ -479,4 +479,87 @@ public class DtoValidationTests : IClassFixture<CustomWebApplicationFactory>
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    // ========== Additional auth edge cases ==========
+
+    [Fact]
+    public async Task Register_EmptyPassword_Returns400()
+    {
+        var request = new RegisterRequestDto { Email = "empty-pw@example.com", Password = "" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/register", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Register_InvalidEmailFormat_Returns400()
+    {
+        var request = new RegisterRequestDto { Email = "not-an-email", Password = "Password1!" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/register", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Register_ExactlyMinLengthPassword_Succeeds()
+    {
+        var request = new RegisterRequestDto
+        {
+            Email = $"minpw-{Guid.NewGuid().ToString("N")[..8]}@example.com",
+            Password = "Abcdefg1" // exactly 8 chars
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/auth/register", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    // ========== Compare boundary cases ==========
+
+    [Fact]
+    public async Task Compare_SingleCartridge_Returns400()
+    {
+        var request = new CompareRequestDto { CartridgeIds = [29], UnitSystem = "yards" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Compare_ExactlyTwoCartridges_Succeeds()
+    {
+        var request = new CompareRequestDto { CartridgeIds = [29, 30], UnitSystem = "yards" };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory/compare", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    // ========== Trajectory range boundary ==========
+
+    [Fact]
+    public async Task Trajectory_ZeroRangeEqualsMaxRange_Returns400()
+    {
+        var request = new TrajectoryRequestDto
+        {
+            CartridgeId = 29, UnitSystem = "yards", ZeroRange = 200, MaxRange = 200
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Trajectory_NegativeWindSpeed_Returns400()
+    {
+        var request = new TrajectoryRequestDto { CartridgeId = 29, UnitSystem = "yards", WindSpeedMph = -5 };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/trajectory", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }
