@@ -42,6 +42,7 @@ export default function LoginPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
+              maxLength={254}
               autoComplete="email"
             />
           </div>
@@ -53,6 +54,7 @@ export default function LoginPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
+              maxLength={72}
               autoComplete="current-password"
             />
           </div>
