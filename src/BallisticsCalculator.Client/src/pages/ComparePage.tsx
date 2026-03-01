@@ -176,6 +176,7 @@ export default function ComparePage() {
           className="compare-btn"
           onClick={handleCompare}
           disabled={validIds.length < 2 || loading}
+          aria-busy={loading}
         >
           {loading ? 'Comparing...' : 'Compare'}
         </button>

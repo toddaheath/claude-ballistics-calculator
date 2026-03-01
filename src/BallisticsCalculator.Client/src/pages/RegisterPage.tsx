@@ -74,7 +74,7 @@ export default function RegisterPage() {
             />
           </div>
           {error && <div className="error" role="alert">{error}</div>}
-          <button type="submit" className="auth-submit" disabled={loading}>
+          <button type="submit" className="auth-submit" disabled={loading} aria-busy={loading}>
             {loading ? 'Creating account…' : 'Register'}
           </button>
         </form>

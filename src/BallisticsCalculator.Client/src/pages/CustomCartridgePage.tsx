@@ -113,6 +113,7 @@ export default function CustomCartridgePage() {
           className="compare-btn"
           onClick={handleCalculate}
           disabled={loading}
+          aria-busy={loading}
           style={{ marginTop: 16 }}
         >
           {loading ? 'Calculating...' : 'Calculate Trajectory'}
