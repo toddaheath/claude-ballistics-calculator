@@ -34,6 +34,9 @@ jobs:
       - name: Test with coverage
         run: dotnet test BallisticsCalculator.sln --no-build --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
+      - name: Check for vulnerable NuGet packages
+        run: dotnet list BallisticsCalculator.sln package --vulnerable 2>&1 | tee /tmp/vuln.txt && ! grep -q 'has the following vulnerable packages' /tmp/vuln.txt
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
@@ -63,6 +66,9 @@ jobs:
 
       - name: Lint
         run: npm run lint -- --max-warnings 0
+
+      - name: TypeScript strict check
+        run: npx tsc --noEmit -p tsconfig.app.json
 
       - name: Test
         run: npm test
