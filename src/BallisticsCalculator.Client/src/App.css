@@ -291,6 +291,25 @@ main {
   text-align: left;
 }
 
+/* ── Not Found Page ── */
+
+.not-found-page {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.not-found-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #2980b9;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.not-found-link:hover {
+  text-decoration: underline;
+}
+
 /* ── Auth Pages ── */
 
 .auth-page {
