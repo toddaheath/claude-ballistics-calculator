@@ -53,5 +53,5 @@ jobs:
             --namespace ballistics-calc-api-prod \
             --create-namespace \
             --wait \
-            --timeout 12m \
+            --timeout 16m \
             --cleanup-on-fail
