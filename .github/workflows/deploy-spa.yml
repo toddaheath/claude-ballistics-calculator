@@ -6,6 +6,10 @@ on:
     types: [completed]
     branches: [main]
 
+concurrency:
+  group: deploy-spa
+  cancel-in-progress: true
+
 jobs:
   deploy-dev:
     name: Deploy SPA to dev Storage
