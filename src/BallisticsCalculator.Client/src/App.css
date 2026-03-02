@@ -720,6 +720,10 @@ main {
   cursor: not-allowed;
 }
 
+.dope-error {
+  margin-top: 12px;
+}
+
 /* Drag model select styling */
 .env-field select {
   padding: 7px 10px;
