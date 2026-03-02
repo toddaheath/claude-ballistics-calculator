@@ -122,6 +122,7 @@ export default function CustomCartridgePage() {
       </div>
 
       {error && <div className="error" role="alert">{error}</div>}
+      {loading && <div className="loading" role="status" aria-live="polite">Calculating trajectory...</div>}
 
       {trajectory && !loading && (
         <>
