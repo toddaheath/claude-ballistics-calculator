@@ -21,4 +21,14 @@ public class HealthCheckTests : IClassFixture<CustomWebApplicationFactory>
         var body = await response.Content.ReadAsStringAsync();
         body.Should().Be("Healthy");
     }
+
+    [Fact]
+    public async Task HealthReady_ReturnsHealthy()
+    {
+        var response = await _client.GetAsync("/health/ready");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Be("Healthy");
+    }
 }

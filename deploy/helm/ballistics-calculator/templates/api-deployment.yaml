@@ -45,17 +45,21 @@ spec:
             - secretRef:
                 name: {{ .Values.postgresql.auth.existingSecret }}
             {{- end }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.api.service.targetPort }}
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /health
               port: {{ .Values.api.service.targetPort }}
-            initialDelaySeconds: 15
             periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /health
+              path: /health/ready
               port: {{ .Values.api.service.targetPort }}
-            initialDelaySeconds: 5
             periodSeconds: 10
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}

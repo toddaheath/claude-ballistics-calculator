@@ -136,9 +136,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Health checks
+// Health checks — separate liveness (no external deps) from readiness (DB check)
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<BallisticsDbContext>();
+    .AddDbContextCheck<BallisticsDbContext>(tags: new[] { "ready" });
 
 // Rate limiting — protect endpoints from abuse
 builder.Services.AddRateLimiter(options =>
@@ -223,7 +223,14 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => false // Liveness only — no external dependency checks
+});
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 app.Run();
 
