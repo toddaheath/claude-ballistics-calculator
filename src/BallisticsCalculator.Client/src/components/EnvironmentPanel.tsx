@@ -32,7 +32,7 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
             <h4 className="env-section-title">Wind</h4>
             <div className="environment-grid">
               <div className="env-field">
-                <label htmlFor="env-wind-speed">Wind Speed (mph)</label>
+                <label htmlFor="env-wind-speed">Wind Speed (<abbr title="miles per hour">mph</abbr>)</label>
                 <input
                   id="env-wind-speed"
                   type="number"
@@ -77,7 +77,7 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
                 />
               </div>
               <div className="env-field">
-                <label htmlFor="env-altitude">Altitude (ft)</label>
+                <label htmlFor="env-altitude">Altitude (<abbr title="feet">ft</abbr>)</label>
                 <input
                   id="env-altitude"
                   type="number"
@@ -89,7 +89,7 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
                 />
               </div>
               <div className="env-field">
-                <label htmlFor="env-pressure">Pressure (inHg)</label>
+                <label htmlFor="env-pressure">Pressure (<abbr title="inches of mercury">inHg</abbr>)</label>
                 <input
                   id="env-pressure"
                   type="number"
@@ -120,7 +120,7 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
             <h4 className="env-section-title">Shot Setup</h4>
             <div className="environment-grid">
               <div className="env-field">
-                <label htmlFor="env-zero-range">Zero Range (yd)</label>
+                <label htmlFor="env-zero-range">Zero Range (<abbr title="yards">yd</abbr>)</label>
                 <input
                   id="env-zero-range"
                   type="number"
@@ -132,7 +132,7 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
                 />
               </div>
               <div className="env-field">
-                <label htmlFor="env-sight-height">Sight Height (in)</label>
+                <label htmlFor="env-sight-height">Sight Height (<abbr title="inches">in</abbr>)</label>
                 <input
                   id="env-sight-height"
                   type="number"
@@ -144,7 +144,7 @@ export default function EnvironmentPanel({ settings, onChange }: Props) {
                 />
               </div>
               <div className="env-field">
-                <label htmlFor="env-shot-height">Shot Height (in)</label>
+                <label htmlFor="env-shot-height">Shot Height (<abbr title="inches">in</abbr>)</label>
                 <input
                   id="env-shot-height"
                   type="number"
