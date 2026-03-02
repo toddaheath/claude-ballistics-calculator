@@ -39,13 +39,10 @@ public class TrajectoryController : ControllerBase
             return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
 
         var dragModel = ParseDragModel(request.DragModel);
-
-        double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
-        double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
-        double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
-
-        if (zeroRange >= maxRange)
-            return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
+        var (zeroRange, maxRange, shotHeight, rangeError) = ResolveRangeDefaults(
+            request.ZeroRange, request.MaxRange, request.ShotHeightInches);
+        if (rangeError is not null)
+            return BadRequest(new { message = rangeError });
 
         var result = _calculator.Calculate(
             cartridge,
@@ -87,16 +84,13 @@ public class TrajectoryController : ControllerBase
             return NotFound(new { message = $"Cartridge with ID {missing} not found." });
         }
 
-        // Parse drag model
         var dragModel = ParseDragModel(request.DragModel);
+        var (zeroRange, maxRange, shotHeight, rangeError) = ResolveRangeDefaults(
+            request.ZeroRange, request.MaxRange, request.ShotHeightInches);
+        if (rangeError is not null)
+            return BadRequest(new { message = rangeError });
 
-        double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
-        double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
-        double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
         bool isMetric = request.UnitSystem?.ToLowerInvariant() == "meters";
-
-        if (zeroRange >= maxRange)
-            return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
 
         // Preserve request order
         var cartridgeMap = cartridges.ToDictionary(c => c.Id);
@@ -144,13 +138,10 @@ public class TrajectoryController : ControllerBase
             return NotFound(new { message = $"Cartridge with ID {request.CartridgeId} not found." });
 
         var dragModel = ParseDragModel(request.DragModel);
-
-        double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
-        double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
-        double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
-
-        if (zeroRange >= maxRange)
-            return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
+        var (zeroRange, maxRange, shotHeight, rangeError) = ResolveRangeDefaults(
+            request.ZeroRange, request.MaxRange, request.ShotHeightInches);
+        if (rangeError is not null)
+            return BadRequest(new { message = rangeError });
 
         var result = _calculator.Calculate(
             cartridge,
@@ -250,13 +241,10 @@ public class TrajectoryController : ControllerBase
         };
 
         var dragModel = ParseDragModel(request.DragModel);
-
-        double zeroRange = request.ZeroRange ?? BallisticConstants.DefaultZeroRangeYards;
-        double maxRange = request.MaxRange ?? BallisticConstants.DefaultMaxRangeYards;
-        double shotHeight = request.ShotHeightInches ?? BallisticConstants.DefaultShotHeightInches;
-
-        if (zeroRange >= maxRange)
-            return BadRequest(new { message = "ZeroRange must be less than MaxRange." });
+        var (zeroRange, maxRange, shotHeight, rangeError) = ResolveRangeDefaults(
+            request.ZeroRange, request.MaxRange, request.ShotHeightInches);
+        if (rangeError is not null)
+            return BadRequest(new { message = rangeError });
 
         var result = _calculator.Calculate(
             cartridge,
@@ -283,6 +271,17 @@ public class TrajectoryController : ControllerBase
 
     private static DragModel ParseDragModel(string? value) =>
         value?.ToUpperInvariant() == "G7" ? DragModel.G7 : DragModel.G1;
+
+    private static (double zeroRange, double maxRange, double shotHeight, string? error) ResolveRangeDefaults(
+        double? zeroRange, double? maxRange, double? shotHeight)
+    {
+        double z = zeroRange ?? BallisticConstants.DefaultZeroRangeYards;
+        double m = maxRange ?? BallisticConstants.DefaultMaxRangeYards;
+        double s = shotHeight ?? BallisticConstants.DefaultShotHeightInches;
+        if (z >= m)
+            return (z, m, s, "ZeroRange must be less than MaxRange.");
+        return (z, m, s, null);
+    }
 
     private static TrajectoryResponseDto MapToResponseDto(TrajectoryResult result, bool isMetric, double shotHeight)
     {
