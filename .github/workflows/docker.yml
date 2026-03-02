@@ -120,3 +120,21 @@ jobs:
             --wait \
             --timeout 16m \
             --cleanup-on-fail
+
+      - name: Debug pod status on failure
+        if: failure()
+        run: |
+          echo "=== Pod status ==="
+          kubectl get pods -n ballistics-calc-api-dev -o wide 2>/dev/null || true
+          echo ""
+          echo "=== Pod descriptions ==="
+          kubectl describe pods -n ballistics-calc-api-dev 2>/dev/null || true
+          echo ""
+          echo "=== Pod logs (API) ==="
+          kubectl logs -n ballistics-calc-api-dev -l app.kubernetes.io/component=api --all-containers --tail=50 2>/dev/null || true
+          echo ""
+          echo "=== Pod logs (PostgreSQL) ==="
+          kubectl logs -n ballistics-calc-api-dev -l app.kubernetes.io/component=postgresql --tail=50 2>/dev/null || true
+          echo ""
+          echo "=== Events ==="
+          kubectl get events -n ballistics-calc-api-dev --sort-by='.lastTimestamp' 2>/dev/null | tail -30 || true
