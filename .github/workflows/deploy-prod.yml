@@ -8,6 +8,10 @@ on:
         required: true
         default: 'latest'
 
+concurrency:
+  group: deploy-api-prod
+  cancel-in-progress: true
+
 jobs:
   deploy-api:
     name: Deploy API to prod AKS

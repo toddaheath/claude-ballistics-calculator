@@ -6,6 +6,10 @@ on:
     types: [completed]
     branches: [main]
 
+concurrency:
+  group: deploy-api-dev
+  cancel-in-progress: true
+
 jobs:
   build-push:
     name: Build & Push Images to ACR
