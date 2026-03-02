@@ -7,6 +7,7 @@ metadata:
     app.kubernetes.io/component: api
 spec:
   replicas: {{ .Values.api.replicaCount }}
+  progressDeadlineSeconds: 900
   strategy:
     type: {{ .Values.api.deploymentStrategy | default "RollingUpdate" }}
   selector:
@@ -43,6 +44,9 @@ spec:
                 name: {{ include "ballistics-calculator.fullname" . }}-config
             - secretRef:
                 name: {{ include "ballistics-calculator.fullname" . }}-secret
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           resources:
             limits:
               cpu: 500m
@@ -71,6 +75,9 @@ spec:
             - secretRef:
                 name: {{ .Values.postgresql.auth.existingSecret }}
             {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           startupProbe:
             httpGet:
               path: /health
@@ -89,3 +96,6 @@ spec:
             periodSeconds: 10
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
