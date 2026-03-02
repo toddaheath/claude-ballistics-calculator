@@ -67,7 +67,7 @@ describe('CustomCartridgePage', () => {
     expect(screen.getByLabelText('Bullet Diameter (in)')).toHaveValue(0.308);
     expect(screen.getByLabelText('Bullet Type')).toHaveValue('BTHP');
     expect(screen.getByLabelText('Drag Model')).toHaveValue('G1');
-    expect(screen.getByLabelText('Max Range')).toHaveValue(500);
+    expect(screen.getByLabelText('Max Range (yd)')).toHaveValue(500);
   });
 
   it('renders the Calculate Trajectory button', () => {
