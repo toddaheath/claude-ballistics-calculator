@@ -16,7 +16,7 @@ RUN dotnet publish src/BallisticsCalculator.Api/BallisticsCalculator.Api.csproj 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
 WORKDIR /app
 
-RUN addgroup -g 1654 -S appgroup && adduser -u 1654 -S appuser -G appgroup
+# .NET 8 Alpine images include a non-root 'app' user at UID/GID 1654
 USER 1654
 
 COPY --from=build /app .
