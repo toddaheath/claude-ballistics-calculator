@@ -73,11 +73,11 @@ export default function CustomCartridgePage() {
             <input id="custom-name" type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} autoComplete="off" />
           </div>
           <div className="env-field">
-            <label htmlFor="custom-weight">Bullet Weight (gr)</label>
+            <label htmlFor="custom-weight">Bullet Weight (<abbr title="grains">gr</abbr>)</label>
             <input id="custom-weight" type="number" min={10} max={1000} step={1} value={bulletWeight} onChange={(e) => setBulletWeight(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
-            <label htmlFor="custom-mv">Muzzle Velocity (fps)</label>
+            <label htmlFor="custom-mv">Muzzle Velocity (<abbr title="feet per second">fps</abbr>)</label>
             <input id="custom-mv" type="number" min={100} max={5000} step={10} value={muzzleVelocity} onChange={(e) => setMuzzleVelocity(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
@@ -85,7 +85,7 @@ export default function CustomCartridgePage() {
             <input id="custom-bc" type="number" min={0.01} max={2.0} step={0.001} value={bc} onChange={(e) => setBc(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
-            <label htmlFor="custom-diameter">Bullet Diameter (in)</label>
+            <label htmlFor="custom-diameter">Bullet Diameter (<abbr title="inches">in</abbr>)</label>
             <input id="custom-diameter" type="number" min={0.1} max={1.0} step={0.001} value={bulletDiameter} onChange={(e) => setBulletDiameter(Number(e.target.value))} autoComplete="off" />
           </div>
           <div className="env-field">
@@ -100,7 +100,7 @@ export default function CustomCartridgePage() {
             </select>
           </div>
           <div className="env-field">
-            <label htmlFor="custom-range">Max Range</label>
+            <label htmlFor="custom-range">Max Range (<abbr title="yards">yd</abbr>)</label>
             <input id="custom-range" type="number" min={10} max={3000} step={50} value={maxRange} onChange={(e) => setMaxRange(Number(e.target.value))} autoComplete="off" />
           </div>
         </div>
