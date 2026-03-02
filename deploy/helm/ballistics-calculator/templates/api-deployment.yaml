@@ -24,6 +24,32 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h {{ include "ballistics-calculator.fullname" . }}-postgresql -p 5432; do
+                echo "Waiting for PostgreSQL..."; sleep 3
+              done
+        - name: migrate
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          command: ["dotnet", "BallisticsCalculator.Api.dll", "--migrate-only"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "ballistics-calculator.fullname" . }}-config
+            - secretRef:
+                name: {{ include "ballistics-calculator.fullname" . }}-secret
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
       containers:
         - name: api
           image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
