@@ -244,7 +244,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
       {cartridgeId !== 0 && (
         <>
           {downloadError && (
-            <div className="error" role="alert" style={{ marginTop: 12 }}>Failed to download DOPE card. Please try again.</div>
+            <div className="error dope-error" role="alert">Failed to download DOPE card. Please try again.</div>
           )}
           <button
             type="button"
