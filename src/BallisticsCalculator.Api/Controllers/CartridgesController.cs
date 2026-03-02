@@ -32,16 +32,7 @@ public class CartridgesController : ControllerBase
             return Ok(cached);
 
         var cartridges = await _repository.GetAllAsync();
-        var dtos = cartridges.Select(c => new CartridgeDto
-        {
-            Id = c.Id,
-            Name = c.Name,
-            Category = c.Category,
-            BulletType = c.BulletType,
-            BulletWeightGrains = c.BulletWeightGrains,
-            MuzzleVelocityFps = c.MuzzleVelocityFps,
-            BallisticCoefficientG1 = c.BallisticCoefficientG1
-        }).ToList();
+        var dtos = cartridges.Select(ToDto).ToList();
 
         _cache.Set(AllCartridgesCacheKey, dtos, TimeSpan.FromHours(1));
         return Ok(dtos);
@@ -58,15 +49,17 @@ public class CartridgesController : ControllerBase
         if (cartridge is null)
             return NotFound(new { message = $"Cartridge with ID {id} not found." });
 
-        return Ok(new CartridgeDto
-        {
-            Id = cartridge.Id,
-            Name = cartridge.Name,
-            Category = cartridge.Category,
-            BulletType = cartridge.BulletType,
-            BulletWeightGrains = cartridge.BulletWeightGrains,
-            MuzzleVelocityFps = cartridge.MuzzleVelocityFps,
-            BallisticCoefficientG1 = cartridge.BallisticCoefficientG1
-        });
+        return Ok(ToDto(cartridge));
     }
+
+    private static CartridgeDto ToDto(Core.Models.Cartridge c) => new()
+    {
+        Id = c.Id,
+        Name = c.Name,
+        Category = c.Category,
+        BulletType = c.BulletType,
+        BulletWeightGrains = c.BulletWeightGrains,
+        MuzzleVelocityFps = c.MuzzleVelocityFps,
+        BallisticCoefficientG1 = c.BallisticCoefficientG1
+    };
 }
