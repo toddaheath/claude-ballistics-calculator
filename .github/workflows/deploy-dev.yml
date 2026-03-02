@@ -65,8 +65,7 @@ jobs:
             failed|pending-install|pending-upgrade|pending-rollback)
               echo "Release in '$STATUS' state — uninstalling to reset"
               helm uninstall ballistics-calc-api -n ballistics-calc-api-dev --wait || true
-              kubectl delete pvc -l app.kubernetes.io/instance=ballistics-calc-api \
-                -n ballistics-calc-api-dev --wait=false || true
+              # Keep PVCs to avoid full PostgreSQL reinit on every reset
               ;;
           esac
 
