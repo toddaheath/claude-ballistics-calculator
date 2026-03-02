@@ -197,6 +197,11 @@ main {
   margin-bottom: 16px;
 }
 
+.error-boundary {
+  text-align: center;
+  padding: 2rem;
+}
+
 .loading {
   text-align: center;
   padding: 40px;

@@ -37,7 +37,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { hasError
   render() {
     if (this.state.hasError) {
       return (
-        <div className="error" role="alert" style={{ textAlign: 'center', padding: '2rem' }}>
+        <div className="error error-boundary" role="alert">
           <h2>{this.state.isChunkError ? 'Failed to load page.' : 'Something went wrong.'}</h2>
           <p>{this.state.isChunkError ? 'Check your network connection and try again.' : 'An unexpected error occurred.'}</p>
           <button type="button" onClick={() => window.location.reload()}>Reload</button>
