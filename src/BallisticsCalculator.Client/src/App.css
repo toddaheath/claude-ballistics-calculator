@@ -683,8 +683,13 @@ main {
   transition: background 0.15s;
 }
 
-.dope-download-btn:hover {
+.dope-download-btn:hover:not(:disabled) {
   background: #219a52;
+}
+
+.dope-download-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 /* Drag model select styling */
