@@ -211,7 +211,7 @@ function AppLayout() {
       <div className="app">
         <a href="#main-content" className="skip-to-content">Skip to content</a>
         {isDemoMode && (
-          <div className="demo-banner">
+          <div className="demo-banner" role="status">
             Demo Mode — showing sample data. Deploy the full stack for live calculations.
           </div>
         )}
