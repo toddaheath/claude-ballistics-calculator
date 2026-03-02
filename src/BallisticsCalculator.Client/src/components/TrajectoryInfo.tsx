@@ -167,7 +167,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
       </table>
 
       <div className="mpbr-section">
-        <h3 style={{ marginTop: 24 }}>Maximum Point-Blank Range</h3>
+        <h3>Maximum Point-Blank Range</h3>
         {mpbrError && (
           <div className="error" role="alert">Failed to calculate MPBR. Please try again.</div>
         )}
@@ -212,7 +212,7 @@ function TrajectoryInfo({ data, settings, cartridgeId, maxRange }: Props) {
 
       {dropTablePoints.length > 0 && (
         <>
-          <h3 style={{ marginTop: 24 }}>Drop Table</h3>
+          <h3>Drop Table</h3>
           <div className="drop-table-wrapper">
             <table className="drop-table">
               <caption className="sr-only">Bullet drop and wind drift at key ranges</caption>
