@@ -198,7 +198,8 @@ export default function CartridgeReference() {
                     type="button"
                     className="bullet-type-btn"
                     onClick={() => setSelectedBulletType(c.bulletType === selectedBulletType ? null : c.bulletType)}
-                    title="Click to see bullet type description"
+                    aria-expanded={c.bulletType === selectedBulletType}
+                    aria-label={`Show description for ${c.bulletType}`}
                   >
                     {c.bulletType}
                   </button>
