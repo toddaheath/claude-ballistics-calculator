@@ -739,6 +739,14 @@ main {
   margin-bottom: 24px;
 }
 
+.custom-cartridge-form .unit-toggle {
+  margin-top: 12px;
+}
+
+.custom-cartridge-form .compare-btn {
+  margin-top: 16px;
+}
+
 .custom-form-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

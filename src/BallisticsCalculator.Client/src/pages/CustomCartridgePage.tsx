@@ -105,9 +105,7 @@ export default function CustomCartridgePage() {
           </div>
         </div>
 
-        <div style={{ marginTop: 12 }}>
-          <UnitToggle unitSystem={unitSystem} onChange={setUnitSystem} />
-        </div>
+        <UnitToggle unitSystem={unitSystem} onChange={setUnitSystem} />
 
         <button
           type="button"
@@ -115,7 +113,6 @@ export default function CustomCartridgePage() {
           onClick={handleCalculate}
           disabled={loading}
           aria-busy={loading}
-          style={{ marginTop: 16 }}
         >
           {loading ? 'Calculating...' : 'Calculate Trajectory'}
         </button>
