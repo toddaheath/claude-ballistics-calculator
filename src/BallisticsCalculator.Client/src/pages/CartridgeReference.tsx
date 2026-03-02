@@ -224,10 +224,10 @@ export default function CartridgeReference() {
       </div>
 
       {selectedBulletType && BULLET_TYPE_GLOSSARY[selectedBulletType] && (
-        <div className="bullet-popover" role="dialog" aria-label={`${selectedBulletType} bullet type description`}>
+        <div className="bullet-popover" role="dialog" aria-label={`${selectedBulletType} bullet type description`} aria-describedby="popover-desc">
           <button type="button" className="popover-close" onClick={() => setSelectedBulletType(null)} aria-label="Close popover">×</button>
           <strong>{selectedBulletType}</strong>
-          <p>{BULLET_TYPE_GLOSSARY[selectedBulletType]}</p>
+          <p id="popover-desc">{BULLET_TYPE_GLOSSARY[selectedBulletType]}</p>
         </div>
       )}
 
