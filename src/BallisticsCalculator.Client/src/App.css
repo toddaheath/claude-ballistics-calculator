@@ -607,6 +607,11 @@ main {
   min-width: 200px;
 }
 
+.compare-selector select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .compare-actions {
   display: flex;
   align-items: center;
