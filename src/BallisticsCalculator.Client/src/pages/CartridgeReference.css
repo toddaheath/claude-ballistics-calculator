@@ -109,7 +109,9 @@
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--cat-color, #555);
+  background: #f0f0f0;
   background: color-mix(in srgb, var(--cat-color, #555) 12%, white);
+  border: 1px solid #ddd;
   border: 1px solid color-mix(in srgb, var(--cat-color, #555) 30%, white);
   white-space: nowrap;
 }
