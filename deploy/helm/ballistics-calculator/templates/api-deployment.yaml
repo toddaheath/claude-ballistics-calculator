@@ -40,6 +40,8 @@ spec:
         - name: migrate
           image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1654
           command: ["dotnet", "BallisticsCalculator.Api.dll", "--migrate-only"]
           envFrom:
             - configMapRef:
@@ -61,6 +63,7 @@ spec:
           image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
           securityContext:
+            runAsUser: 1654
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:

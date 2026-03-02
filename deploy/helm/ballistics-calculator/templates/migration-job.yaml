@@ -19,9 +19,15 @@ spec:
         app.kubernetes.io/component: migration
     spec:
       restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
         - name: wait-for-postgres
           image: postgres:16-alpine
+          securityContext:
+            runAsUser: 70
           command:
             - sh
             - -c
@@ -33,6 +39,8 @@ spec:
         - name: migrate
           image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          securityContext:
+            runAsUser: 1654
           command: ["dotnet", "BallisticsCalculator.Api.dll", "--migrate-only"]
           envFrom:
             - configMapRef:
