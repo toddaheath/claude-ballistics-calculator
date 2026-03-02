@@ -183,22 +183,22 @@ Cd
         <div className="hiw-bc-examples">
           <div className="bc-example">
             <span className="bc-label">.380 ACP 95gr FMJ</span>
-            <div className="bc-bar-demo" style={{ width: '11%' }} />
+            <div className="bc-bar-demo" style={{ width: '11%' }} aria-hidden="true" />
             <span className="bc-num">BC 0.119</span>
           </div>
           <div className="bc-example">
             <span className="bc-label">.308 Win 168gr BTHP</span>
-            <div className="bc-bar-demo" style={{ width: '42%' }} />
+            <div className="bc-bar-demo" style={{ width: '42%' }} aria-hidden="true" />
             <span className="bc-num">BC 0.462</span>
           </div>
           <div className="bc-example">
             <span className="bc-label">6.5 CM 140gr ELD Match</span>
-            <div className="bc-bar-demo" style={{ width: '53%' }} />
+            <div className="bc-bar-demo" style={{ width: '53%' }} aria-hidden="true" />
             <span className="bc-num">BC 0.585</span>
           </div>
           <div className="bc-example">
             <span className="bc-label">.50 BMG 750gr A-MAX</span>
-            <div className="bc-bar-demo" style={{ width: '95%' }} />
+            <div className="bc-bar-demo" style={{ width: '95%' }} aria-hidden="true" />
             <span className="bc-num">BC 1.050</span>
           </div>
         </div>
