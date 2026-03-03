@@ -48,6 +48,13 @@ deploy/
 - `docker-compose -f deploy/docker/docker-compose.yml up --build`
 - API: localhost:5000, Client: localhost:3000, DB: localhost:5432
 
+## Environments
+
+- **Dev SPA**: https://ballistics-calc.dev.heathrobotics.io
+- **Dev API**: https://ballistics-calc-api.dev.heathrobotics.io
+- **Prod SPA**: https://ballistics-calc.heathrobotics.io
+- **Prod API**: https://ballistics-calc-api.heathrobotics.io
+
 ## Key Technical Details
 
 - Ballistics engine uses RK4 integration with G1 and G7 drag models (selectable)

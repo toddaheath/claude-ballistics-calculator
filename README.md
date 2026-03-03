@@ -163,6 +163,25 @@ helm install ballistics-calculator deploy/helm/ballistics-calculator/ \
   --set api.replicas=3
 ```
 
+## Environments
+
+| Environment | Service | URL |
+|-------------|---------|-----|
+| **Dev** | Frontend (SPA) | https://ballistics-calc.dev.heathrobotics.io |
+| **Dev** | API | https://ballistics-calc-api.dev.heathrobotics.io |
+| **Dev** | Swagger | https://ballistics-calc-api.dev.heathrobotics.io/swagger |
+| **Dev** | Health | https://ballistics-calc-api.dev.heathrobotics.io/health |
+| **Prod** | Frontend (SPA) | https://ballistics-calc.heathrobotics.io |
+| **Prod** | API | https://ballistics-calc-api.heathrobotics.io |
+| **Prod** | Swagger | https://ballistics-calc-api.heathrobotics.io/swagger |
+| **Prod** | Health | https://ballistics-calc-api.heathrobotics.io/health |
+| **Local** | Frontend | http://localhost:5173 (Vite dev server) |
+| **Local** | API | http://localhost:5062 (dotnet run) |
+| **Docker** | Frontend | http://localhost:3000 (nginx) |
+| **Docker** | API | http://localhost:5000 |
+
+The SPA is hosted on Azure Blob Storage with a CDN. The API runs on AKS (Azure Kubernetes Service) behind an nginx ingress with TLS.
+
 ## API Reference
 
 ### `GET /api/cartridges`
